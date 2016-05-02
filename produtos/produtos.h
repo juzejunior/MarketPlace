@@ -1,12 +1,13 @@
 #ifndef PRODUTOS_H
 #define PRODUTOS_H
 
+#include "../fornecedores/fornecedores.h"
+
 typedef struct Data{
 	int dia;
 	int mes;
 	int ano;
 } Data;
- 
  
 typedef struct Produtos{
 	char nome[20];
