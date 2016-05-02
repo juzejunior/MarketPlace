@@ -1,12 +1,21 @@
 #include "fornecedores/fornecedores.c"
-#include<string.h>
+#include "categoria/categoria.c"
+#include "produtos/produtos.c"
 
 int main(int argc, char *argv[])
 {
-	Fornecedores **fornecedores;
-	 
+	Fornecedores *fornecedores;
 	fornecedores = NULL;
-	//printf("Nandinho da Bahia");
-	cadastrarFornecedor(fornecedores,"Nestlé","leite");
+	cadastrarFornecedor(&fornecedores,"Nestlé","leite");
+	cadastrarFornecedor(&fornecedores,"Coca Cola","agua");
+	cadastrarFornecedor(&fornecedores,"Saraiva","livro");
+	cadastrarFornecedor(&fornecedores,"Nestlé","chocolate");
+	cadastrarFornecedor(&fornecedores,"Longa Vida","leite");
+	cadastrarFornecedor(&fornecedores,"Nestlé","barra");
+	cadastrarFornecedor(&fornecedores,"Idaia","agua");
+	cadastrarFornecedor(&fornecedores,"Nestlé","leite");
+	cadastrarProduto(&fornecedores, "Longa Vida", "barra de chocolate");
+	cadastrarProduto(&fornecedores, "Nestlé", "bombom");
+	listarTodosProdutos(fornecedores);
 	return 0;
 }

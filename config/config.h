@@ -1,0 +1,2 @@
+int checkSO();
+void limparTela();

@@ -1,50 +1,14 @@
-/*Categorias*/
+#include "categoria.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-typedef struct Categoria{
-	char nomeCategoria[50];
-	struct Categoria *prox;
-}cat;
-
-void inserirCategorias(cat **categorias, char nomeCategoria[]);
-void listarCategorias(cat *categorias);
-void deletarCategorias(cat **categorias, char nomeCategoria[]);
-
-/*int main(){
-	cat *categorias;
-	int insere=0;
-	char nomeCategoria[50];
-	categorias = NULL;
+void inserirCategorias(Categoria **categorias, char nomeCategoria[])
+{
+	Categoria *aux;
+	aux = (Categoria*) malloc(sizeof(Categoria));
 	
-	do{
-		printf("0 - (Sair)\n1 - (Inserir)\n2 - (Listar)\n3 - (Deletar)\n");
-		printf("Informe a sua opcao: ");
-		scanf("%d",&insere);
-		switch(insere){
-			case 1: printf("Informe uma categoria: ");
-					scanf(" %s",nomeCategoria);
-					inserirCategorias(&categorias,nomeCategoria);
-					break;
-			case 2: listarCategorias(categorias);
-					break;
-			case 3: printf("Informe a Categoria a ser Deletada: ");
-					scanf("%s",nomeCategoria);
-					deletarCategorias(&categorias,nomeCategoria);
-					break;
-		}
-	}while(insere != 0);
-	return 0;
-}*/
-
-void inserirCategorias(cat **categorias, char nomeCategoria[]){
-	cat *aux;
-	aux = (cat*) malloc(sizeof(cat));
-	
-	if(aux == NULL){
+	if(aux == NULL)
+	{
 		printf("Memória Indisponivel!");
+		return;
 	}
 	
 	strcpy(aux->nomeCategoria,nomeCategoria);
@@ -52,31 +16,40 @@ void inserirCategorias(cat **categorias, char nomeCategoria[]){
 	*categorias = aux;
 }
 
-void listarCategorias(cat *categorias){
-	cat *aux;
-	if(categorias == NULL){
+void listarCategorias(Categoria *categorias){
+	Categoria *aux;
+	if(categorias == NULL)
+	{
 		printf("Não Possui Categorias Cadastradas!");
-	}else{
-		for(aux = categorias; aux!=NULL; aux= aux->prox){
-			printf("%s\n",aux->nomeCategoria);
-		}
+		return;
+	}
+
+	for(aux = categorias; aux != NULL; aux = aux->prox)
+	{
+		printf("%s\n",aux->nomeCategoria);
 	}
 }
-void deletarCategorias(cat **categorias, char nomeCategoria[]){
-	cat *pAnt,*atual;
+
+void deletarCategorias(Categoria **categorias, char nomeCategoria[]){
+	Categoria *pAnt,*pAtual;
 	
-	for(atual = *(categorias); atual != NULL; atual = atual->prox){
-		if (strcmp(atual->nomeCategoria,nomeCategoria)==0){
-			if((*categorias) == atual){
-				*categorias = atual->prox;
-				free(atual);
+	for(pAtual = *(categorias); pAtual != NULL; pAtual = pAtual->prox)
+	{
+		if (strcmp(pAtual->nomeCategoria,nomeCategoria)==0)
+		{
+			if((*categorias) == pAtual)
+			{
+				*categorias = pAtual->prox;
+				free(pAtual);
 				break;
-			 }else{
-				pAnt->prox=atual->prox;
-				free(atual);
+			 }
+			 else
+			 {
+				pAnt->prox = pAtual->prox;
+				free(pAtual);
 				break;
 			}
 		}
-		pAnt=atual;
+		pAnt=pAtual;
 	}
 }
