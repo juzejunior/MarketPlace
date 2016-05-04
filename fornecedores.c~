@@ -1,4 +1,4 @@
-#include "include/fornecedores.h"
+#include "fornecedores.h"
 /* 
  * File:   fornecedores.c
  * Author: junior(Diôgo)
@@ -128,7 +128,7 @@ int liberarProdutos(Fornecedores **fornecedor, char nomeFornecedor[])
 	return 0;	
 }
 
-/*atualizar nome do fornecedor*/
+/*atualizar nome do fornecedor - CORRIGIR*/
 int atualizarFornecedor(Fornecedores **fornecedor, char nomeAtual[], char nomeNovo[])
 {
 	Fornecedores *f = *fornecedor;
@@ -136,14 +136,13 @@ int atualizarFornecedor(Fornecedores **fornecedor, char nomeAtual[], char nomeNo
 	
 	while(f != NULL)
 	{
-		if(strcmp(f->nome,nomeAtual) == 0)
+		if(strcmp(f->nome, nomeAtual) == 0)
 		{
 			strcpy(f->nome, nomeNovo);
 			return 1;
 		}
 		f = f->prox;
 	}
-	printf("Fornecedor não encontrado!\n");
 	
 	return 0;
 }
@@ -206,49 +205,6 @@ int cadastrarProduto(Fornecedores **fornecedor, char nome_fornecedor[], char nom
 	return 0;
 }
 
-/*remover produtos*/
-int removerProdutos(Fornecedores **fornecedor,char nomeFornecedor[],char nomeProduto[])
-{
-	Fornecedores *f;
-	Produtos *p, *anterior, *liberar;
-	
-	f = *fornecedor;
-	
-	while(f != NULL)
-	{
-		/*se o fornecedor existir verifique a existencia do produto e se existir remova-o*/
-		if(strcmp(f->nome, nomeFornecedor) == 0)
-		{
-			p = f->produto;
-			anterior = p;
-			
-			while(p != NULL)
-			{
-				if(strcmp(p->nome,nomeProduto) == 0)
-				{
-					if(p == f->produto)//caso seja o primeiro ponteiro
-					{
-						liberar = p;
-						f->produto = p->prox;
-						free(liberar);
-					}else{
-						liberar = p;
-						anterior->prox = p->prox;
-						free(liberar);	
-					}
-					return 1;
-				}
-				anterior = p;
-				p = p->prox;
-			}
-			printf("Esse produto não é oferecido pelo(a) %s\n", f->nome);
-			return 0;
-		}
-	}
-	printf("Esse fornecedor não existe!\n");
-	return 0;
-}
-
 /*lista todos os produtos com seus respectivos fornecedores*/
 int listarTodosProdutos(Fornecedores *fornecedor)
 {	
@@ -267,7 +223,6 @@ int listarTodosProdutos(Fornecedores *fornecedor)
 		printf("\n");
 		F = F->prox;
 	}
-	
 	return 1;
 }
 

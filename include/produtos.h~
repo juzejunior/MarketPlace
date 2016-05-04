@@ -1,7 +1,7 @@
 #ifndef PRODUTOS_H
 #define PRODUTOS_H
 
-#include "fornecedores.h"
+#include "../fornecedores/fornecedores.h"
 
 typedef struct Data{
 	int dia;

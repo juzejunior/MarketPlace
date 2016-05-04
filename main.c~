@@ -1,6 +1,6 @@
-#include "fornecedores.c"
-#include "categoria.c"
-#include "produtos.c"
+#include "fornecedores/fornecedores.c"
+#include "categoria/categoria.c"
+#include "produtos/produtos.c"
 
 int main(int argc, char *argv[])
 {
@@ -8,9 +8,10 @@ int main(int argc, char *argv[])
 	inicializarFornecedor(&fornecedores);
 	
 	cadastrarFornecedor(&fornecedores,"Itambe","leite condensado");
-	cadastrarProduto(&fornecedores,"Itambe","biscoito");
+	cadastrarProduto(&fornecedores,"Itambe","arroz");
+	cadastrarProduto(&fornecedores,"Itambe","leite condensado");
+	removerFornecedor(&fornecedores, "Itambe");
 	atualizarFornecedor(&fornecedores,"Itambe","Ninho");
-	removerProdutos(&fornecedores,"Ninho","leite condensado");
 	listarTodosProdutos(fornecedores);
 	liberarFornecedor(&fornecedores);
 	
