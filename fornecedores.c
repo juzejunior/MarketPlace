@@ -124,6 +124,7 @@ int liberarProdutos(Fornecedores **fornecedor, char nomeFornecedor[])
 			}
 			return 1;
 		}
+		f = f->prox;
 	}
 	return 0;	
 }
@@ -163,7 +164,7 @@ int liberarFornecedor(Fornecedores **fornecedor)
 		f = f->prox;
 		free(aux);
 	}
-	*fornecedor = NULL;
+
 	return 1;
 }
 
@@ -187,6 +188,14 @@ int cadastrarProduto(Fornecedores **fornecedor, char nome_fornecedor[], char nom
 			
 			//atribui o ponteiro do produto para p e adiciona ao final da lista
 			p = F->produto;
+			produto_anterior = p;
+			
+			//se nao houver produtos cadastrados
+			if(p == NULL)
+			{
+				(F)->produto = novo_produto;
+				return 1;
+			}
 			//percorre ate o final da lista e insere o novo produto
 			while(p != NULL){
 				//se o produto ja estiver cadastrado
@@ -244,8 +253,41 @@ int removerProdutos(Fornecedores **fornecedor,char nomeFornecedor[],char nomePro
 			printf("Esse produto não é oferecido pelo(a) %s\n", f->nome);
 			return 0;
 		}
+		f = f->prox;
 	}
 	printf("Esse fornecedor não existe!\n");
+	return 0;
+}
+
+/*atualizar produto de um determinado fornecedor*/
+int atualizarProduto(Fornecedores **fornecedor, char nomeFornecedor[], char nomeProdutoAtual[], char nomeProdutoNovo[])
+{
+	Fornecedores *f;
+	Produtos *p;
+	
+	f = *fornecedor;
+		
+	if(f == NULL) return 0;
+	
+	while(f != NULL)
+	{
+	   if(strcmp(f->nome, nomeFornecedor) == 0)
+	   {
+			p = f->produto;
+			
+			while(p != NULL)
+			{
+				if(strcmp(p->nome,nomeProdutoAtual) == 0)
+				{
+					 strcpy(p->nome, nomeProdutoNovo);
+					 return 1;
+				}
+				p = p->prox;
+			}
+			return 0;
+	   }
+	   f = f->prox;	
+	}
 	return 0;
 }
 
