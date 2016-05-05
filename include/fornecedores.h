@@ -31,5 +31,5 @@ int listarTodosProdutos(Fornecedores *fornecedores);
 /*remove um determinado produto dentro de um fornecedor*/
 int removerProdutos(Fornecedores **fornecedor,char nomeFornecedor[],char nomeProduto[]);
 /*atualiza o nome de um determinado produto*/
-int atualizarProduto(Fornecedores **fornecedor, char nomeFornecedor[], char nomeProduto[]);
+int atualizarProduto(Fornecedores **fornecedor, char nomeFornecedor[], char nomeProdutoAtual[], char nomeProdutoNovo[]);
 #endif
