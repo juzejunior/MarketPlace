@@ -1,6 +1,4 @@
-#include "../include/fornecedor.h"
 #include "../include/config.h"
-#include "config.c"
 
 int inserirFornecedor()
 {
@@ -15,6 +13,7 @@ int inserirFornecedor()
 	   printf("        Cadastro de Fornecedores\n\n");
 	   printf(" Nome: ");
 	   scanf(" %[^\n]s", fornecedor.nome);
+	   stringMaiusculo(fornecedor.nome);
 	   printf(" E-mail: ");
 	   scanf(" %[^\n]s", fornecedor.email);
 	   printf(" Telefone: ");
@@ -24,9 +23,9 @@ int inserirFornecedor()
 	   //caso cadastre com sucesso
 	   if(fwrite(&fornecedor,sizeof(Fornecedor),1,file_fornecedor) != 0)
 	   {
-			printf("\n Cadastrado com sucesso!\n\n");
+			printf("\n Fornecedor cadastrado com sucesso!\n\n");
 	   }else{
-		    printf("\n Cadastro não realizado!\n\n");
+		    printf("\n Cadastrodo fornecedor não realizado!\n\n");
 	   } 	
 	   printf(" Novo cadastro(s/n): ");
 	   scanf(" %c", &opcao);	
@@ -51,6 +50,7 @@ int deletarFornecedor()
 	   printf("        Deletar Fornecedor\n\n");
 	   printf(" Qual fornecedor deseja remover: ");
 	   scanf(" %[^\n]s", nomeFornecedor);
+	   stringMaiusculo(nomeFornecedor);
 	   
 	   while(fread(&fornecedor,sizeof(Fornecedor),1,file_fornecedor) == 1)
 	   {
@@ -98,13 +98,13 @@ int exibirFornecedor()
 
 void atualizarFornecedor()
 {
-	int opcao;		
-	
+	//int opcao;		
+	/*
 	do{
 		limparTela();
 		printf(" 1-nome | 2-email | 3-telefone\n\n");
 		scanf("%d", &opcao);	
-    }
+    }*/
 }
 
 void menuFornecedor()
