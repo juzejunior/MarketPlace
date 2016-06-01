@@ -1,8 +1,11 @@
-#include "fornecedor.c"
-
+//#include "fornecedor.c"
+#include "categoria.c"
+#include "locale.h"
 
 int main()
 {
-	menuFornecedor();
+	setlocale(LC_ALL, "Portuguese");
+	//menuFornecedor();
+	menuCategoria();
 	return 0;
 }
