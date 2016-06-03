@@ -12,12 +12,6 @@ struct Produto{
 	int dia, mes, ano;
 }Produto;
 
-typedef
-struct Organizar{
-	Produto produto;
-	struct Organizar *prox;
-}Organizar;
-
 void menuEstoque();
 void menuExibir();
 void exibirAleatoriamente();
@@ -31,4 +25,7 @@ int deletarProdutosZerados();
 int organizarEstoque();
 int checarQuantidade();
 int checarValidade();
+void organizarPorData(Produto produto[], int n);
+void exibirProdutosFornecedores();
+
 #endif

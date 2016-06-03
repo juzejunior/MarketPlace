@@ -3,6 +3,7 @@
 #include <time.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <locale.h>
 #include <stdlib.h>
 #include <string.h>
 #include "produto.h"
@@ -10,7 +11,6 @@
 #include "fornecedor.h"
 #define NODATA 0
 
-typedef struct Fornecedores Fornecedores;
 /*VERIFICA O SISTEMA OPERACIONAL EM QUE O PROGRAMA ESTA RODANDO*/
 int checkSO();
 /*Limpa a tela do programa*/
@@ -27,14 +27,12 @@ char charMaiusculo(char caracter);
 void stringMaiusculo(char *string);
 /*Utilizada para validação de datas*/
 int valida_data(int dia, int mes, int ano);
-
-
-
-
+/*main menu*/
+void menuPrincipal(char usuario[]);
 /*exibe o nome da empresa*/
 void marca();
 /*tela de autenticacao*/
-void loginScreen(Fornecedores **f);
+void loginScreen();
 /*autenticacao de usuario*/
 int autenticar(char login[], char senha[]);
 #endif

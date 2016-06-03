@@ -38,8 +38,10 @@ void limparBuffer()
 
 void pause()
 {
-	printf("\n Precione <ENTER> para continuar");
-	limparBuffer();
+	if(checkSO())
+		system("pause");
+	else
+		system("read -p \" Precione <ENTER> para continua\" saindo");
 }
 
 char charMaiusculo(char caracter)
@@ -91,56 +93,44 @@ int valida_data(int dia, int mes, int ano)
            }
 }
 
-
-
-
-
-
 /*barra de navegacao*/
 void navbar()
 {
-	printf(" 1-Inicio | 2-Perfil | 3-Fornecedores | 4-Estoque | 0-Sair\n");
+	printf(" 1-Perfil | 2-Fornecedores | 3-Estoque | 4-Categorias | 0-Sair\n");
 }
 /*verifica a opcao do usuario referente ao menu principal*/
-void opcao(int escolha, Fornecedores **f)
+void opcao(int escolha)
 {
 	limparTela();
-	
 	switch(escolha)
 	{
-		case 1:
-			  printf("  pagina inicial\n");
-		break;
-		case 2:
-			 printf(" perfil\n");
-	    break;
-	    case 3:
-			menuFornecedor(f);
-		break;
-		case 4: 
-			printf("  Estoque\n");
-		break;
-		case 0:
-			printf("  Até mais!\n");
-		break;
-		default:
-			printf("Essa opção não consta no menu. Tente novamente!\n");
-		break;
+		case 0: limparTela();
+			marca();
+			printf("\n\t\tObrigado por usar nosso programa!");
+			exit(0);
+		case 1: perfil();
+			break;
+	    case 2: menuFornecedor();
+			break;
+		case 3: menuEstoque();
+			break;
+		case 4: menuCategoria();
 	}
 }
 /*Menu principal*/
-void menuPrincipal(char usuario[], Fornecedores **f)
+void menuPrincipal(char usuario[])
 {
 	int escolha = 1;
-	
+	limparTela();
 	while(escolha != 0)
 	{
-		printf("                                        Olá, %s  %s", usuario, now());
+		printf("                                     Olá, %s  %s", usuario, now());
 		marca();
 		navbar();
 		printf("\n Opção: ");
 		scanf("%d", &escolha);
-		opcao(escolha, f);
+		opcao(escolha);
+		limparTela();
 	}
 }
 /*utilizada para encriptar a senha do usuario*/
@@ -157,13 +147,13 @@ char *encrypt(char *senha)
 /*Exibe o nome da empresa*/
 void marca()
 {
-	printf("       ____________________\n\n");
-	printf("            MarketPlace\n");
-	printf("       ____________________\n\n");
+	printf("\t\t\t____________________\n\n");
+	printf("\t\t\t    Market Place\n");
+	printf("\t\t\t____________________\n\n");
 }
 
 /*tela inicial de autenticação*/
-void loginScreen(Fornecedores **f)
+void loginScreen()
 {
 	char usuario[10], senha[10];
 	int cont = 0;
@@ -180,7 +170,7 @@ void loginScreen(Fornecedores **f)
 		limparTela();
 	}while(autenticar(usuario, senha) != 1);
 	
-	menuPrincipal(usuario, f);
+	menuPrincipal(usuario);
 }
 
 /*autentica o usuario em sua sessao*/
