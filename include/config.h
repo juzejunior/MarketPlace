@@ -31,6 +31,8 @@ int valida_data(int dia, int mes, int ano);
 void menuPrincipal(char usuario[]);
 /*exibe o nome da empresa*/
 void marca();
+
+char *encrypt(char *senha);
 /*tela de autenticacao*/
 void loginScreen();
 /*autenticacao de usuario*/

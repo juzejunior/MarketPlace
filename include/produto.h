@@ -14,9 +14,10 @@ struct Produto{
 
 void menuEstoque();
 void menuExibir();
-void exibirAleatoriamente();
 void exibirPorCategoria();
+void exibirAleatoriamente();
 void exibirPorFornecedor();
+void exibirPorQuantidade();
 void exibirPorBusca();
 int inserirProduto();
 int retirarDoEstoque();

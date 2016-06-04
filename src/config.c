@@ -155,19 +155,24 @@ void marca()
 /*tela inicial de autenticação*/
 void loginScreen()
 {
-	char usuario[10], senha[10];
+	char usuario[30], senha[30];
 	int cont = 0;
 	
 	do{
+		if(cont > 3)
+		{
+			printf(" Excedido o número de tentativas!\n\n");
+			return;
+		}
 		marca();
 		/*apenas para printar uma mensagem caso erre o usuario ou senha*/
 		if(cont > 0) printf("  Usuário ou senha incorretos. Tente novamente!\n\n");
 		printf("  Usuário: ");
-		scanf("%10s", usuario);
+		scanf(" %[^\n]s", usuario);
 		printf("  Senha: ");
-		scanf("%10s", senha);
-		cont++;
+		scanf(" %[^\n]s", senha);
 		limparTela();
+		cont++;
 	}while(autenticar(usuario, senha) != 1);
 	
 	menuPrincipal(usuario);
@@ -176,22 +181,21 @@ void loginScreen()
 /*autentica o usuario em sua sessao*/
 int autenticar(char login[], char senha[])
 {
-	char usuario[20];
-	int cont = 0;
-	FILE *gerente;
-	gerente = fopen("login/manager.txt","r");
 	
-	if(gerente == NULL){
-		printf(" Não foi possível abrir o arquivo.\n");
-		return 0;
-	} 
+	FILE *file = fopen("../DB/manager.bin","rb");
+	Manager user;
 	
-	while((fscanf(gerente,"%s\n", usuario)) != EOF)
-	{
-		if(strcmp(usuario, login) == 0 || strcmp(usuario, senha) == 0) cont++;
+	if(file != NULL)
+	{ 
+		fread(&user,sizeof(Manager),1,file);
+		encrypt(user.senha);
+		if(strcmp(user.usuario,login) == 0 && strcmp(user.senha, senha) == 0)
+		{
+			fclose(file);
+			return 1;
+		}
 	}
-	/*se o usuario e senha estiverem corretos*/
-	if(cont == 2) return 1;
-	
+	fclose(file);
 	return 0;
 }
+

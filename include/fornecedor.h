@@ -22,7 +22,6 @@ void atualizaEmailFornecedor();
 void atualizaContatoFornecedor();
 void adicionarProdutosFornecedor();
 int existeProdutoFornecedor(char NomeFornecedor[], char nomeProduto[]);
-void exibirProdutosatoa();
 void excluirProdutoFornecedor();
 void buscaProdutosFornecedor();
 #endif

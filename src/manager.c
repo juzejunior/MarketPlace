@@ -1,3 +1,4 @@
+#include "../include/config.h"
 #include "../include/manager.h"
 
 
@@ -8,9 +9,9 @@ void criarManager()
 	
 	if(file != NULL)
 	{
-		strcpy(usuario.usuario,"Steve Jobs");
+		strcpy(usuario.usuario,"gerente");
 		strcpy(usuario.senha, "minhasenha");
-		//encrypt(usuario.senha);
+		encrypt(usuario.senha);
 		fwrite(&usuario,sizeof(Manager),1,file);
 	}else{
 		printf(" Não foi possivel abrir o arquivo :(\n\n");
@@ -74,7 +75,7 @@ void atualizarSenha()
 	if(file != NULL)
 	{
 		fread(&m,sizeof(Manager),1,file);
-		//encrypt(m.senha);
+		encrypt(m.senha);
 		limparTela();
 		printf("                                     %s", now());
 		marca();
@@ -84,7 +85,7 @@ void atualizarSenha()
 		{
 			printf(" Informe a nova senha: ");
 			scanf(" %[^\n]s", nova_senha);
-			//encrypt(nova_senha);
+			encrypt(nova_senha);
 			strcpy(m.senha,nova_senha);
 			fseek(file,sizeof(Manager)*0, SEEK_SET);
 			fwrite(&m,sizeof(Manager), 1, file);

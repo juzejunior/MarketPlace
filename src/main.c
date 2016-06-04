@@ -6,6 +6,9 @@
 
 int main()
 {
-	menuPrincipal(" Mito Goku");
+	//criarManager();
+	loginScreen();
+	//menuPrincipal(" Mito Goku");
 	return 0;
 }
+
