@@ -1,6 +1,6 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#ifndef FORNECEDOR_H
+#define FORNECEDOR_H
+#include "config.h"
 
 
 typedef struct Fornecedor{
@@ -14,3 +14,15 @@ int inserirFornecedor();
 int deletarFornecedor();
 int exibirFornecedor();
 void menuFornecedor();
+void procurarFornecedor();
+int existeFornecedor();
+void MenuatualizarFornecedor();
+void atualizaNomeFornecedor();
+void atualizaEmailFornecedor();
+void atualizaContatoFornecedor();
+void adicionarProdutosFornecedor();
+int existeProdutoFornecedor(char NomeFornecedor[], char nomeProduto[]);
+void excluirProdutoFornecedor();
+void buscaProdutosFornecedor();
+void exibirProdutosFornecedores();
+#endif
