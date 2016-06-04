@@ -1,11 +1,12 @@
-//#include "fornecedor.c"
+#include "fornecedor.c"
 #include "categoria.c"
-#include "locale.h"
+#include "manager.c"
+#include "produto.c"
+#include "config.c"
 
 int main()
 {
-	setlocale(LC_ALL, "Portuguese");
-	//menuFornecedor();
-	menuCategoria();
+	loginScreen();
 	return 0;
 }
+
