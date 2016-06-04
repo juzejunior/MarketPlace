@@ -23,6 +23,9 @@ int inserirProduto();
 int retirarDoEstoque();
 int deletarProduto();
 int deletarProdutosZerados();
+/*faz a leitura de todos os produtos do arquivo e chama a funcao para ordenar
+* por data
+* */
 int organizarEstoque();
 int checarQuantidade();
 int checarValidade();

@@ -60,7 +60,10 @@ void atualizarUsuario()
 		strcpy(m.usuario, user);
 		fseek(file,sizeof(Manager)*0, SEEK_SET);
 		fwrite(&m,sizeof(Manager), 1, file);
+		printf(" Atualizado com sucesso!\n\n");
 	 }
+	 fclose(file);
+	 pause();
 	 perfil();
 }
 

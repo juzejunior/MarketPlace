@@ -4,13 +4,13 @@ void menuEstoque()
 {
 	int opcao;		
 	limparTela();
-	organizarEstoque();
-	deletarProdutosZerados();
+	organizarEstoque();//chamada para organização do estoque por data de validade
+	deletarProdutosZerados();//deleta os produtos que esgotaram
 	printf("                                        %s",now());
 	marca();	
 	printf("\t\t\t    Estoque\n\n");
 	printf("\t      1-Fazer Novo Pedido    4-Excluir Produtos\n\t      2-Listar Produtos      0-Voltar\n\t      3-Colocar para Venda");
-	checarQuantidade();
+	checarQuantidade();//verificacao da quantidade de cada produto para sugestão de reposição
 	printf("\n\t      Opção: ");
 	scanf("%d", &opcao);
 	switch(opcao)
@@ -30,7 +30,7 @@ void menuEstoque()
 			break;
 	}
 }
-
+/*opções de busca do estoque*/
 void menuExibir()
 {
 	int opcao;		
@@ -56,7 +56,7 @@ void menuExibir()
 			break;
 	}
 }
-
+/*exibe todos os produtos pertecentes a uma categoria*/
 void exibirPorCategoria()
 {
 	int encontrou;
@@ -92,7 +92,7 @@ void exibirPorCategoria()
 	pause();
 	menuEstoque();
 }
-
+/*Exibe todos os produtos de forma aleatorio*/
 void exibirAleatoriamente()
 {
 	Produto produto;
@@ -114,7 +114,9 @@ void exibirAleatoriamente()
 	pause();
 	menuEstoque();			
 }
-
+/*exibe todos os produtos com seus respectivos fornecedores ou todos os produtos de um forne-
+ * cedor especifico.
+ * */
 void exibirPorFornecedor()
 {
 	int opcao;
@@ -166,7 +168,7 @@ void exibirPorFornecedor()
 	pause();
 	menuEstoque();
 }
-
+/*exibe os produtos mostrando sua quantidade dentro do estoque*/
 void exibirPorQuantidade(){
 	int encontrou;
 	Produto produto;
@@ -185,7 +187,7 @@ void exibirPorQuantidade(){
 	pause();
 	menuEstoque();
 }
-
+/*busca especifica por nome do produto*/
 void exibirPorBusca()
 {
 	int achouProduto = 0;
@@ -220,7 +222,7 @@ void exibirPorBusca()
 	pause();
 	menuEstoque();
 }
-
+/*adiciona um produto ao estoque ou imncrementa um existente*/
 int inserirProduto()
 {
 	char opcao;
@@ -504,6 +506,7 @@ int deletarProdutosZerados()
 	return 1;
 }
 
+/*realiza a leitura de todos os elementos do estoque para organizar por data de validade*/
 int organizarEstoque()
 {
 	int count = 0, i = 5;
@@ -523,7 +526,7 @@ int organizarEstoque()
 	organizarPorData(produto, count);
 	return 1;
 }
-
+/*Ordena o vetor de produtos por data de validade*/
 void organizarPorData(Produto produto[], int n)
 {
 	int i, j;
