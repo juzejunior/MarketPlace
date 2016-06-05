@@ -1,45 +1,152 @@
 #include "../include/config.h"
 
-int inserirCategoria()
+void inicializarCategoria(Categoria **categoria)
 {
-	FILE *file_categoria;
-	Categoria categoria;
-	char opcao;
+	*categoria = NULL;
+}
 
-	file_categoria = fopen("../DB/categoria.bin","ab");	
-	
-	do
+int carregaCategoria(Categoria **c)
+{
+	FILE *file_categoria = fopen("../DB/categoria.bin","rb");
+	Categoria aux, *categoria, *novo, *anterior;
+
+	/*se o arquivo existir*/
+	if(file_categoria != NULL)
 	{
-	   limparTela();
-	   printf("                                        %s",now());
-	   marca();	
-	   printf("\n\t\t       Cadastro de Categorias\n\n");
-	   printf("Nome da Categoria: ");
-	   scanf(" %[^\n]s", categoria.nomeCategoria);
-	   stringMaiusculo(categoria.nomeCategoria);
-	   //caso cadastre com sucesso
-	   if(fwrite(&categoria,sizeof(Categoria),1,file_categoria) != 0)
-	   {
-			printf("\n Cadastrado com sucesso!\n\n");
-	   }else{
-		    printf("\n Cadastro não realizado!\n\n");
-	   } 	
-	   printf(" Novo cadastro(s/n): ");
-	   scanf(" %c", &opcao);	
-	}while(opcao != 'n');
-	fclose(file_categoria);
-	limparTela();
-	menuCategoria();
-	
+		while(fread(&aux, sizeof(Categoria),1,file_categoria) == 1)//lendo as structs no arquivo
+		{
+			categoria = *c;//taking the node root
+			anterior = categoria;//iniciando o anterior
+			
+			 novo = (Categoria*) malloc(sizeof(Categoria));//alocando novo espaço
+			*novo = aux; //atribuindo os valores
+			novo->prox = NULL;
+			if(categoria == NULL)//caso nao exista fornecedores carregados ainda
+			{
+				*c = novo;//atribui ao nó root
+			}
+			else
+			{
+				while(categoria != NULL)//percorre toda a lista de fornecedores
+				{
+					anterior = categoria;//guardando o ultimo elemento
+					categoria = categoria->prox;//andando pela lista
+				}
+				anterior->prox = novo;//atribui o novo elemento
+			}
+		}
+		fclose(file_categoria);//encerrando o arquivo
+	}else{
+		inicializarCategoria(c);
+	}
 	return 0;
 }
 
-void menuCategoria()
+void cadastrarCategoria(Categoria **categoria)
+{
+	FILE *file_categoria;
+	Categoria *c, *anterior, *novo;
+	char opcao;
+	
+	do{
+		c = *categoria;//taking the node root
+		anterior = c;//iniciando o anterior
+		novo = (Categoria*) malloc(sizeof(Categoria));//alocando
+		file_categoria = fopen("../DB/categoria.bin","ab");
+		limparTela();
+		printf("                                     %s", now());
+	    marca();	
+	    printf("       		      Cadastro de Categorias\n\n");
+	    printf(" 		Categoria: ");
+	    scanf(" %[^\n]s", novo->nomeCategoria);	
+	    stringMaiusculo(novo->nomeCategoria);
+		//se nao houver fornecedores cadastrados
+		if(c == NULL)
+		{
+			*categoria = novo;
+		}else{
+			while(c != NULL)//percorre toda a lista de fornecedores
+			{
+				anterior = c;//guardando o ultimo elemento
+				c = c->prox;//andando pela lista
+			}
+			anterior->prox = novo;//atribui o novo elemento
+		}
+		if(fwrite(novo,sizeof(Categoria),1,file_categoria) != 0) printf(" 		Cadastrado com sucesso :)\n\n");
+		else printf(" 		Problema ao cadastrar fornecedor :(\n\n");
+	    fclose(file_categoria);
+	    printf(" 		Novo cadastro(s/n): ");
+	    scanf(" %c", &opcao);
+	}while(opcao != 'n');
+	pause();	
+	menuCategoria(&c);
+}
+
+int exibirCategoria(Categoria **categoria)
+{
+	limparTela();
+	printf("                                     %s", now());
+	marca();	
+	printf("       		      Listar as Categorias\n\n");
+	Categoria *c = *categoria;
+	if(c == NULL)
+	{
+		return 0;
+	}else{
+		while(c != NULL)
+		{
+			printf("%s\n", c->nomeCategoria);
+			c = c->prox;
+		}
+	}
+		
+	pause();	
+	menuCategoria(categoria);
+	return 1;
+}
+
+int deletarCategoria(Categoria **categoria)
+{
+	char opcao, nomeCategoria[30];
+	Categoria cat;
+	FILE *file_categoria;
+	FILE *file_aux;
+	do{
+		file_categoria = fopen("../DB/categoria.bin","rb");
+		file_aux = fopen("../DB/aux.bin","wb");
+		limparTela();
+		printf("                                     %s", now());
+		marca();	
+		printf("       		      Deletar Categorias\n\n");
+		printf(" 		Categoria: ");
+		scanf(" %[^\n]s", nomeCategoria);	
+	    stringMaiusculo(nomeCategoria);
+	    *categoria = NULL;
+	    while(fread(&cat, sizeof(Categoria),1,file_categoria) == 1)//lendo as structs no arquivo
+		{
+			if(strcmp(nomeCategoria, cat.nomeCategoria) != 0)
+			{
+				fwrite(&cat,sizeof(Categoria),1,file_aux);
+			}
+		}
+		fclose(file_categoria);
+		fclose(file_aux);
+		remove("../DB/categoria.bin");
+		rename("../DB/aux.bin", "../DB/categoria.bin");
+		printf(" 		Deletar mais uma categoria(s/n): ");
+	    scanf(" %c", &opcao);
+	}while(opcao!='n');
+	menuCategoria(categoria);
+	return 1;
+}
+
+void menuCategoria(Categoria **categoria)
 {
 	 int opcao;	
 	 limparTela();
 	 printf("                                        %s",now());
 	 marca();	
+	 carregaCategoria(categoria);
 	 printf("\n\t\t\t      Categorias\n\n");
 	 printf("\t      1-Cadastrar Categoria    3-Excluir Categoria\n\t      2-Listar Categorias      0-Voltar\n");	
 	 printf("\n\t      Opção: ");
@@ -47,11 +154,11 @@ void menuCategoria()
 	 
 	 switch(opcao)
 	 {
-		case 1:inserirCategoria();
+		case 1:cadastrarCategoria(categoria);
 			   break;
-		case 2:exibirCategoria();
+		case 2:exibirCategoria(categoria);
 			   break;
-		case 3:deletarCategoria();
+		case 3:deletarCategoria(categoria);
 			   break;
 		case 0: return;
 		default: printf(" Opcao Invalida, voltando ao menu principal! \n");
@@ -60,82 +167,14 @@ void menuCategoria()
 	 }
 }
 
-void exibirCategoria()
+int existeCategoria(Categoria *categoria, char nomeCategoria[])
 {
-	Categoria categoria;
-	FILE *file_categoria = fopen("../DB/categoria.bin","rb");
-	limparTela();
-	printf("                                        %s",now());
-	marca();
-	printf("\n\t\t\t Exibir Categorias\n\n");
-	while(fread(&categoria,sizeof(Categoria),1,file_categoria) == 1)
-	{
-		printf(" Nome da Categoria: %s\n", categoria.nomeCategoria);
-	}
-	fclose(file_categoria);		
-	pause();	
-	menuCategoria();
-}
-
-int deletarCategoria()
-{
-	char nomeCategoria[30];
-	Categoria categoria;
-	FILE *file_categoria = fopen("../DB/categoria.bin","rb");
-	FILE *auxCategoria = fopen("../DB/auxCategoria.bin","wb");
-	char opcao;
-	int encontrou = 0;
+	Categoria *c = categoria;
 	
-	do
+	while(c != NULL)
 	{
-	   limparTela();
-	   printf("                                        %s",now());
-	   marca();	
-	   printf("\n\t\t\t Deletar Categoria\n\n");
-	   printf(" Qual Categoria deseja remover: ");
-	   scanf(" %[^\n]s", nomeCategoria);
-	   stringMaiusculo(nomeCategoria);
-	   
-	   while(fread(&categoria,sizeof(Categoria),1,file_categoria) == 1)
-	   {
-			if(strcmp(categoria.nomeCategoria, nomeCategoria) == 0)
-			{
-				encontrou = 1;
-			}else{
-				fwrite(&categoria, sizeof(Categoria), 1, auxCategoria);
-			}
-	   }
-	   //caso tenha encontrado a categoria
-	   if(!encontrou) printf(" Categoria não encontrada!\n\n");
-	   else printf(" Removido com sucesso!\n\n"); 
-	   
-	   fclose(file_categoria);
-	   fclose(auxCategoria);
-	   
-	   remove("../DB/categoria.bin");
-	   rename("../DB/auxCategoria.bin", "../DB/categoria.bin");
-	   
-	   printf(" Nova exclusão(s/n): ");
-	   scanf(" %c", &opcao);	
-	}while(opcao != 'n');
-	limparTela();
-	menuCategoria();
-	return 0;
-}
-
-int existeNomeCategoria(char nomeCategoria[])
-{
-	FILE *file_categoria = fopen("../DB/categoria.bin","rb+");
-	Categoria categoria;
-	while(fread(&categoria,sizeof(Categoria),1, file_categoria) == 1)
-	{
-		if(strcmp(categoria.nomeCategoria, nomeCategoria) == 0)
-		{
-			fclose(file_categoria);
-			return 1;	
-		} 
+		if(strcmp(c->nomeCategoria, nomeCategoria) == 0) return 1;
+		c = c->prox;
 	}
-	fclose(file_categoria);
-	menuCategoria();
 	return 0;
 }

@@ -6,8 +6,8 @@
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
-#include "produto.h"
-#include "categoria.h"
+//#include "produto.h"
+//#include "categoria.h"
 #include "fornecedor.h"
 #define NODATA 0
 
