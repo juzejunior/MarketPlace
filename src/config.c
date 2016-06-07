@@ -1,4 +1,5 @@
 #include "../include/config.h"
+#include "manager.c"
 
 int checkSO()
 {

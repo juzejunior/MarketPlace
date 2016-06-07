@@ -9,6 +9,7 @@
 #include "produto.h"
 #include "categoria.h"
 #include "fornecedor.h"
+
 #define NODATA 0
 
 /*VERIFICA O SISTEMA OPERACIONAL EM QUE O PROGRAMA ESTA RODANDO*/

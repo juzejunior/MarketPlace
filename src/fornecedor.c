@@ -1,4 +1,7 @@
+#include "../include/fornecedor.h"
+#include "../include/produto.h"
 #include "../include/config.h"
+#include "config.c"
 /* 
  * File:   fornecedores.c
  * Author: junior(Diôgo)
@@ -27,7 +30,7 @@ int existeFornecedor(Fornecedor *fornecedor, char nomeFornecedor[])
 	return 0;
 }
 
-void menuAtualizarFornecedor(Fornecedor **fornecedor)
+void menuAtualizarFornecedor(Fornecedor **fornecedor, Produto **produto)
 {
 	int opcao;		
 	do{
@@ -39,13 +42,16 @@ void menuAtualizarFornecedor(Fornecedor **fornecedor)
 		scanf("%d", &opcao);
 		switch(opcao){
 			case 1:
-				atualizaNomeFornecedor(fornecedor);
+				atualizaNomeFornecedor(fornecedor, produto);
+				menuAtualizarFornecedor(fornecedor, produto);
 			break;
 			case 2:
 				atualizaEmailFornecedor(fornecedor);
+				menuAtualizarFornecedor(fornecedor, produto);
 			break;
 			case 3:
 				atualizaContatoFornecedor(fornecedor);
+				menuAtualizarFornecedor(fornecedor, produto);
 			break;
 			case 4:
 				return;
@@ -55,14 +61,17 @@ void menuAtualizarFornecedor(Fornecedor **fornecedor)
 	}while(opcao < 1 || opcao > 4);	
 }
 
-void atualizaNomeFornecedor(Fornecedor **fornecedor)
+void atualizaNomeFornecedor(Fornecedor **fornecedor, Produto **produto)
 {
 	char nomeFornecedor[30];
 	Fornecedor *f;
+	Produto *p;
 	char opcao;
+	char nomeAntigo[30];
 	
 	do{
 		f = *fornecedor;
+		p = *produto;
 		limparTela();
 		printf("                                     %s", now());
 		marca();
@@ -74,12 +83,14 @@ void atualizaNomeFornecedor(Fornecedor **fornecedor)
 		{
 			if(existeFornecedor(f,nomeFornecedor))
 			{
+				strcpy(nomeAntigo, nomeFornecedor);
 				while(f != NULL)
 				{
 					if(strcmp(f->nome, nomeFornecedor) == 0)//se encontrou o fornecedor
 					{
 						printf("	Informe o novo nome: ");
 						scanf(" %[^\n]s", nomeFornecedor);
+						stringMaiusculo(nomeFornecedor);
 						while(existeFornecedor(f, nomeFornecedor))
 						{
 							printf("	Este nome já está em uso por outro fornecedor :( \n");
@@ -88,7 +99,19 @@ void atualizaNomeFornecedor(Fornecedor **fornecedor)
 							stringMaiusculo(nomeFornecedor);
 						}
 						strcpy(f->nome, nomeFornecedor);
+						
+						while(p != NULL)
+						{
+							if(strcmp(p->nomeFornecedor, nomeAntigo) == 0)
+							{
+								if(p == *produto) strcpy((*produto)->nomeFornecedor, nomeFornecedor);
+								else strcpy(p->nomeFornecedor, nomeFornecedor);
+							}
+							p = p->prox;
+						}
+						
 						printf("	Atualizado com sucesso :)\n\n");
+						atualizarArquivoProduto(produto);
 						atualizarArquivoFornecedor(fornecedor);
 						break;
 					}
@@ -105,7 +128,6 @@ void atualizaNomeFornecedor(Fornecedor **fornecedor)
 		printf("	Nova alteração(s/n): ");
 		scanf(" %c", &opcao);
 	}while(opcao != 'n');
-	menuAtualizarFornecedor(fornecedor);
 }
 
 void atualizaEmailFornecedor(Fornecedor **fornecedor)
@@ -151,7 +173,6 @@ void atualizaEmailFornecedor(Fornecedor **fornecedor)
 		printf("	Nova alteração(s/n): ");
 		scanf(" %c", &opcao);
 	}while(opcao != 'n');
-	menuAtualizarFornecedor(fornecedor);
 }
 
 void atualizaContatoFornecedor(Fornecedor **fornecedor)
@@ -198,7 +219,7 @@ void atualizaContatoFornecedor(Fornecedor **fornecedor)
 		printf("	Nova alteração(s/n): ");
 		scanf(" %c", &opcao);
 	}while(opcao != 'n');
-	menuAtualizarFornecedor(fornecedor);
+	
 }
 
 int carregaFornecedor(Fornecedor **f)
@@ -278,7 +299,7 @@ void exibirTodosFornecedores(Fornecedor **fornecedor)
 	limparTela();
 	printf("                                     %s", now());
 	marca();	
-	printf("       		      Exibindo todos os fornecedores\n\n");
+	printf("       		Exibindo todos os fornecedores\n\n");
 
 	if(f == NULL)
 	{
@@ -374,8 +395,10 @@ void cadastrarFornecedor(Fornecedor **fornecedor, Produto **produto)
 	return;
 }
 
-void deletarFornecedor(Fornecedor **fornecedor)
+void deletarFornecedor(Fornecedor **fornecedor, Produto **produto)
 {
+	Produto *p = *produto;
+	Produto *anterior_produto;
 	Fornecedor *f = *fornecedor;
 	Fornecedor *anterior = f;
 	Fornecedor *trash;
@@ -385,6 +408,8 @@ void deletarFornecedor(Fornecedor **fornecedor)
 	do{
 	  f = *fornecedor;
 	  anterior = f;
+	  p = *produto;
+	  anterior_produto = p;
 	  limparTela();
 	  printf("                                        %s",now());
 	  marca();	
@@ -409,11 +434,33 @@ void deletarFornecedor(Fornecedor **fornecedor)
 					}
 					trash = f;
 					free(trash);
+					
+					
+					//excluindo os produtos pertencentes ao fornecedor especificado
+					while(p != NULL)
+					{
+						//comparando se é o fornecedor especificado acima
+						if(strcmp(p->nomeFornecedor, nomeFornecedor) == 0)
+						{
+							if(p == *produto)
+							{
+								*produto = p->prox;
+								anterior_produto = *produto;
+							}else{
+								anterior_produto = p->prox;
+							}
+						}else{
+							anterior_produto = p;
+						}
+						p = p->prox;
+					}
+					break;
 				}
 				anterior = f;
 				f = f->prox;
 			}
-			//atualiza o arquivo com a lista	
+			//atualiza o arquivo com a lista
+			atualizarArquivoProduto(produto);	
 			atualizarArquivoFornecedor(fornecedor);
 			printf("	Excluído com sucesso!\n\n");
 		}else
@@ -460,8 +507,8 @@ void atualizarArquivoProduto(Produto **produto)
 			fwrite(p,sizeof(Produto),1,file_produto);
 			p = p->prox;
 		}
-		fclose(file_produto);
 	}
+	fclose(file_produto);
 }
 
 /*menu do fornecedor*/
@@ -484,7 +531,7 @@ void menuFornecedor(Fornecedor **fornecedor, Produto **produto)
 				menuFornecedor(fornecedor, produto);
 			break;
 			case 2:
-				deletarFornecedor(fornecedor);
+				deletarFornecedor(fornecedor, produto);
 				menuFornecedor(fornecedor, produto);
 			break;
 			case 3:
@@ -496,21 +543,24 @@ void menuFornecedor(Fornecedor **fornecedor, Produto **produto)
 				menuFornecedor(fornecedor, produto);
 			break;
 			case 5:
-				menuAtualizarFornecedor(fornecedor);
+				menuAtualizarFornecedor(fornecedor, produto);
 				menuFornecedor(fornecedor, produto);
 			break;
 			case 6:
 				exibirProdutosFornecedores(fornecedor, produto);
+				menuFornecedor(fornecedor, produto);
 			break;
 			case 7:
 				adicionarProdutosFornecedor(fornecedor, produto);
 				menuFornecedor(fornecedor, produto);
 			break;
 			case 8:
-				//excluirProdutoFornecedor();
+				excluirProdutoFornecedor(fornecedor, produto);
+				menuFornecedor(fornecedor, produto);
 			break;
 			case 9:
-				//buscaProdutosFornecedor();
+				buscaProdutosFornecedor(produto);
+				menuFornecedor(fornecedor, produto);
 			break;
 			case 0:
 				return;
@@ -566,7 +616,6 @@ void procurarFornecedor(Fornecedor **fornecedor)
 	return;
 }
 
-/*#PEndente*/
 void adicionarProdutosFornecedor(Fornecedor **fornecedor,Produto **produto)
 {
 	char escolha;	
@@ -584,9 +633,9 @@ void adicionarProdutosFornecedor(Fornecedor **fornecedor,Produto **produto)
 			limparTela();
 			printf("                                        %s",now());
 			marca();	
-			printf("\t\tAdicionar produtos\n\n");
+			printf("\t\t	Adicionar produtos\n\n");
 			
-			printf(" Informe o nome do fornecedor: ");
+			printf(" 	Informe o nome do fornecedor: ");
 			scanf(" %[^\n]s", nomeFornecedor);
 			stringMaiusculo(nomeFornecedor);//transforma o nome do fornecedor em maiusculo
 		
@@ -601,12 +650,18 @@ void adicionarProdutosFornecedor(Fornecedor **fornecedor,Produto **produto)
 				if(existeProdutoFornecedor(nomeFornecedor,novo_produto->nome, p) == 0)
 				{
 					strcpy(novo_produto->nomeFornecedor, nomeFornecedor);
-					while(p != NULL)
+					
+					if(p == *produto && p == NULL)
 					{
-						anterior = p;
-						p = p->prox;
+						*produto = novo_produto;
+					}else{
+						while(p != NULL)
+						{
+							anterior = p;
+							p = p->prox;
+						}
+						anterior->prox = novo_produto;
 					}
-					anterior->prox = novo_produto;
 					printf("	Atualizado com sucesso :)\n\n");
 					atualizarArquivoProduto(produto);
 				}else
@@ -694,24 +749,122 @@ void exibirProdutosFornecedores(Fornecedor **f ,Produto **p)
 	{
 		printf("	Não há produtos cadastrados :(\n\n");
 	}else{
-		printf(" Informe o nome do fornecedor: ");
+		printf("	Informe o nome do fornecedor: ");
 		scanf(" %[^\n]s", nomeFornecedor);
 		stringMaiusculo(nomeFornecedor);//transforma o nome do fornecedor em maiusculo
 		
-		if(existeFornecedor(fornecedor, nomeFornecedor) == 0)
+		if(existeFornecedor(fornecedor, nomeFornecedor) == 1)
 		{
 			while(produto != NULL)
 			{
 				if(strcmp(produto->nomeFornecedor, nomeFornecedor) == 0)
 				{
 					printf("	Produto: %s\n", produto->nome);
-					produto = produto->prox;
 					total++;
 				}
+				produto = produto->prox;
 			}
 		}
 	}
-	printf("	%d Resultado(s) encontrado(s).\n\n", total);
+	printf("\n	%d Resultado(s) encontrado(s).\n\n", total);
 	pause();
 	return;
+}
+/*exclui um produto de um determinado fornecedor*/
+void excluirProdutoFornecedor(Fornecedor **fornecedor,Produto **produto)
+{
+	Produto *p;
+	Produto *anterior;
+	char opcao;
+	char nomeProduto[30];
+	char nomeFornecedor[30];
+	
+	do{
+		p = *produto;
+		anterior = p;
+		limparTela();
+		printf("                                        %s",now());
+		marca();	
+		printf("\t\t	Excluir produtos\n\n");
+		
+		//colhendo informacoes
+		printf(" 	Digite o nome do produto: ");
+		scanf("	%[^\n]s", nomeProduto);
+		stringMaiusculo(nomeProduto);
+		printf(" 	Digite o nome do fornecedor: ");
+		scanf("	%[^\n]s", nomeFornecedor);
+		stringMaiusculo(nomeFornecedor);
+		
+		//verifica existência dos dados informados
+		if(existeProdutoFornecedor(nomeFornecedor, nomeProduto, p)  == 1)
+		{
+			while(p != NULL)
+			{
+				//comparando o produto procurando
+				if(strcmp(p->nome, nomeProduto) == 0 && strcmp(p->nomeFornecedor, nomeFornecedor) == 0)
+				{
+					if(p == *produto)
+					{
+						*produto = p->prox;
+					}else{
+						anterior->prox = p->prox;
+					}
+					free(p);
+					printf(" 	Excluído com sucesso :)\n\n");
+					atualizarArquivoProduto(produto);
+					break;
+				}
+				anterior = p;
+				p = p->prox;
+			}	
+		}else
+		{
+			printf(" 	Esse produto não está cadastrado para o fornecedor informado :(\n\n");
+		}
+		printf(" Continuar(s/n): ");
+		scanf(" %c", &opcao);
+	}while(opcao != 'n');
+}
+//exibe todos os fornecedores de um produto
+void buscaProdutosFornecedor(Produto **produto)
+{
+	Produto *p;
+	char nomeProduto[30];
+	int total = 0;
+	
+	p = *produto;
+	limparTela();
+	printf("                                        %s",now());
+	marca();	
+	printf("\t\t	Buscando fornecedores\n\n");	
+	//colhendo informacoes
+	printf(" 	Digite o nome do produto: ");
+	scanf("	%[^\n]s", nomeProduto);
+	stringMaiusculo(nomeProduto);
+		
+	if(existeProdutoemFornecedor(p, nomeProduto) == 1)
+	{
+		//chegando no resultado requirido
+		while(p != NULL)
+		{
+			if(strcmp(p->nome, nomeProduto) == 0)
+			{
+				printf("	Fornecedor: %s\n", p->nomeFornecedor);
+				total++;
+			}
+			p = p->prox;
+		}
+	}	
+	printf("\n	%d Resultado(s) encontrado(s).\n\n", total);
+	pause();
+	return;
+}
+
+int existeProdutoemFornecedor(Produto *p, char nomeProduto[])
+{
+	while(p != NULL)
+	{
+		if(strcmp(p->nome, nomeProduto) == 0) return 1;
+	}
+	return 0;
 }

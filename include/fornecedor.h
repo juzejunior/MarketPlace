@@ -1,6 +1,10 @@
 #ifndef FORNECEDOR_H
 #define FORNECEDOR_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "config.h"
+#include "produto.h"
 
 
 typedef struct Fornecedor{
@@ -11,6 +15,8 @@ typedef struct Fornecedor{
 	struct Fornecedor *prox;
 } Fornecedor;
 
+/*deleta um fornecedor e todos os seus produtos oferecidos*/
+void deletarFornecedor(Fornecedor **fornecedor, Produto **produto);
 /*cadastrar um novo fornecedor*/
 void cadastrarFornecedor(Fornecedor **fornecedor, Produto **produto);
 /*atualizar fornecedor*/
@@ -30,9 +36,9 @@ void atualizarArquivoFornecedor(Fornecedor **fornecedor);
 /*liberar memória alocada para fornecedor*/
 int liberarFornecedor(Fornecedor **fornecedor);
 /*menu de atualização do fornecedor*/
-void menuAtualizarFornecedor(Fornecedor **fornecedor);
+void menuAtualizarFornecedor(Fornecedor **fornecedor, Produto **produto);
 /*atualiza o nome de um fornecedor*/
-void atualizaNomeFornecedor(Fornecedor **fornecedor);
+void atualizaNomeFornecedor(Fornecedor **fornecedor, Produto **produto);
 /*atualiza o email de um fornecedor*/
 void atualizaEmailFornecedor(Fornecedor **fornecedor);
 /*atualiza o contato de um fornecedor*/
@@ -52,11 +58,14 @@ int existeProdutoFornecedor(char nomeFornecedor[], char nomeProduto[], Produto *
 /*atualiza o arquivo de produto de um fornecedor*/
 void atualizarArquivoProduto(Produto **produto);
 /*excluir produto de um fornecedor*/
-void excluirProdutoFornecedor();
+void excluirProdutoFornecedor(Fornecedor **fornecedor,Produto **produto);
 /*exibir atoa*/
 void listaProduto(Produto *p);
 /*exibe todos os produtos pertencentes a um fornecedor*/
-void exibirProdutosFornecedores(Fornecedor **f ,Produto **p);;
-
+void exibirProdutosFornecedores(Fornecedor **f ,Produto **p);
+/*exibe todos os fornecedores de um determinado produto*/
+void buscaProdutosFornecedor(Produto **produto);
+//verifica se o produto existe em fornecedor
+int existeProdutoemFornecedor(Produto *p, char nomeProduto[]);
 
 #endif

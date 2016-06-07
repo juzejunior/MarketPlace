@@ -1,7 +1,6 @@
 #include "../include/config.h"
 #include "../include/manager.h"
 
-
 void criarManager()
 {
 	FILE *file = fopen("../DB/manager.bin","wb");
