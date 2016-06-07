@@ -400,7 +400,7 @@ void menuFornecedor()
 				buscaProdutosFornecedor();
 			break;
 			case 0:
-				menuPrincipal("Mito Goku");
+				return;
 			break;
 		}	 
 	 }while(opcao > 10 || opcao < 0);

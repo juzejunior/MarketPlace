@@ -136,6 +136,5 @@ int existeNomeCategoria(char nomeCategoria[])
 		} 
 	}
 	fclose(file_categoria);
-	menuCategoria();
 	return 0;
 }
