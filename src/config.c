@@ -41,7 +41,7 @@ void pause()
 	if(checkSO())
 		system("pause");
 	else
-		system("read -p \" Pressione <ENTER> para continuar\" saindo");
+		system("read -p \"	Pressione <ENTER> para continuar\" saindo");
 }
 
 char charMaiusculo(char caracter)
@@ -98,27 +98,9 @@ void navbar()
 {
 	printf("\t           1-Perfil            4-Categorias\n\t           2-Fornecedores      0-Voltar\n\t           3-Estoque");
 }
-/*verifica a opcao do usuario referente ao menu principal*/
-void opcao(int escolha)
-{
-	limparTela();
-	switch(escolha)
-	{
-		case 0: limparTela();
-			marca();
-			printf("\n\t\tObrigado por usar nosso programa!");
-			exit(0);
-		case 1: perfil();
-			break;
-	    case 2: menuFornecedor();
-			break;
-		case 3: menuEstoque();
-			break;
-		case 4: menuCategoria();
-	}
-}
+
 /*Menu principal*/
-void menuPrincipal(char usuario[])
+void menuPrincipal(Produto **produto, Categoria **categoria, Fornecedor **fornecedor, Produto **p_fornecedor, char usuario[])
 {
 	int escolha = 1;
 	limparTela();
@@ -129,10 +111,25 @@ void menuPrincipal(char usuario[])
 		navbar();
 		printf("\n\n\t           Opção: ");
 		scanf("%d", &escolha);
-		opcao(escolha);
+		limparTela();
+		switch(escolha)
+		{
+			case 0: limparTela();
+				marca();
+				printf("\n\t\tObrigado por usar nosso programa!");
+				exit(0);
+			case 1: perfil();
+				break;
+			case 2: menuFornecedor(fornecedor, produto);
+				break;
+			case 3: menuEstoque(produto, categoria, fornecedor, p_fornecedor);
+				break;
+			case 4: menuCategoria(categoria);
+		}
 		limparTela();
 	}
 }
+
 /*utilizada para encriptar a senha do usuario*/
 char *encrypt(char *senha)
 {
@@ -152,8 +149,8 @@ void marca()
 	printf("\t\t\t____________________\n\n");
 }
 
-/*tela inicial de autenticação*/
-void loginScreen()
+//tela inicial de autenticação
+void loginScreen(Produto **produto, Categoria **categoria, Fornecedor **fornecedor, Produto **p_fornecedor)
 {
 	char usuario[30], senha[30];
 	int cont = 0;
@@ -165,7 +162,6 @@ void loginScreen()
 			return;
 		}
 		marca();
-		/*apenas para printar uma mensagem caso erre o usuario ou senha*/
 		if(cont > 0) printf("  Usuário ou senha incorretos. Tente novamente!\n\n");
 		printf("  Usuário: ");
 		scanf(" %[^\n]s", usuario);
@@ -175,10 +171,10 @@ void loginScreen()
 		cont++;
 	}while(autenticar(usuario, senha) != 1);
 	
-	menuPrincipal(usuario);
+	menuPrincipal(produto, categoria, fornecedor, p_fornecedor, usuario);
 }
 
-/*autentica o usuario em sua sessao*/
+//autentica o usuario em sua sessao
 int autenticar(char login[], char senha[])
 {
 	

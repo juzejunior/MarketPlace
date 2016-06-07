@@ -28,13 +28,13 @@ void stringMaiusculo(char *string);
 /*Utilizada para validação de datas*/
 int valida_data(int dia, int mes, int ano);
 /*main menu*/
-void menuPrincipal(char usuario[]);
+void menuPrincipal(Produto **produto, Categoria **categoria, Fornecedor **fornecedor, Produto **p_fornecedor, char usuario[]);
 /*exibe o nome da empresa*/
 void marca();
 
 char *encrypt(char *senha);
 /*tela de autenticacao*/
-void loginScreen();
+void loginScreen(Produto **produto, Categoria **categoria, Fornecedor **fornecedor, Produto **p_fornecedor);
 /*autenticacao de usuario*/
 int autenticar(char login[], char senha[]);
 #endif
