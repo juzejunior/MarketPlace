@@ -41,7 +41,7 @@ void pause()
 	if(checkSO())
 		system("pause");
 	else
-		system("read -p \" Precione <ENTER> para continua\" saindo");
+		system("read -p \"	Pressione <ENTER> para continuar\" saindo");
 }
 
 char charMaiusculo(char caracter)
@@ -98,7 +98,7 @@ void navbar()
 {
 	printf(" 1-Perfil | 2-Fornecedores | 3-Estoque | 4-Categorias | 0-Sair\n");
 }
-/*verifica a opcao do usuario referente ao menu principal*/
+/*verifica a opcao do usuario referente ao menu principal
 void opcao(int escolha)
 {
 	limparTela();
@@ -117,7 +117,7 @@ void opcao(int escolha)
 		case 4: menuCategoria();
 	}
 }
-/*Menu principal*/
+Menu principal
 void menuPrincipal(char usuario[])
 {
 	int escolha = 1;
@@ -132,7 +132,7 @@ void menuPrincipal(char usuario[])
 		opcao(escolha);
 		limparTela();
 	}
-}
+}*/
 /*utilizada para encriptar a senha do usuario*/
 char *encrypt(char *senha)
 {
@@ -152,7 +152,7 @@ void marca()
 	printf("\t\t\t____________________\n\n");
 }
 
-/*tela inicial de autenticação*/
+/*tela inicial de autenticação
 void loginScreen()
 {
 	char usuario[30], senha[30];
@@ -165,7 +165,7 @@ void loginScreen()
 			return;
 		}
 		marca();
-		/*apenas para printar uma mensagem caso erre o usuario ou senha*/
+		apenas para printar uma mensagem caso erre o usuario ou senha
 		if(cont > 0) printf("  Usuário ou senha incorretos. Tente novamente!\n\n");
 		printf("  Usuário: ");
 		scanf(" %[^\n]s", usuario);
@@ -178,7 +178,7 @@ void loginScreen()
 	menuPrincipal(usuario);
 }
 
-/*autentica o usuario em sua sessao*/
+autentica o usuario em sua sessao
 int autenticar(char login[], char senha[])
 {
 	
@@ -197,5 +197,5 @@ int autenticar(char login[], char senha[])
 	}
 	fclose(file);
 	return 0;
-}
+}*/
 

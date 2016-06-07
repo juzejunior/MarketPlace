@@ -10,6 +10,7 @@ struct Produto{
 	char nomeCategoria[30];
 	float preco;
 	int dia, mes, ano;
+	struct Produto *prox;
 }Produto;
 
 void menuEstoque();

@@ -1,13 +1,23 @@
 #include "fornecedor.c"
-#include "categoria.c"
-#include "manager.c"
 #include "produto.c"
-#include "config.c"
 
-int main()
+
+int main(int argc, char *argv[])
 {
-	loginScreen();
+	Fornecedor *f;
+	Produto *p_fornecedor;
+
+	inicializarFornecedor(&f);
+	carregaFornecedor(&f);	
+
+	inicializarProdutoFornecedor(&p_fornecedor);
+	carregaProdutoFornecedor(&p_fornecedor);
+	
+	//listaProduto(p_fornecedor);
+	
+	menuFornecedor(&f, &p_fornecedor);
+	liberarFornecedor(&f);
+	liberarProduto(&p_fornecedor);
 	
 	return 0;
 }
-
