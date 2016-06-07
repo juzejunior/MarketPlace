@@ -4,7 +4,6 @@ void menuEstoque()
 {
 	int opcao;		
 	limparTela();
-	organizarEstoque();
 	deletarProdutosZerados();
 	printf("                                        %s",now());
 	marca();	
@@ -37,17 +36,17 @@ void menuExibir()
 	limparTela();
 	printf("                                        %s",now());
 	marca();
-	printf("\n       1-Listar por Categorias           4-Listar por Quantidade");
-	printf("\n       2-Listar por Data de Validade     5-Listar por Busca");
+	printf("\n       1-Listar por Aleatoriamente          4-Listar por Quantidade");
+	printf("\n       2-Listar por Categorias     5-Listar por Busca");
 	printf("\n       3-Listar por Fornecedor           0-Voltar");
 	printf("\n\n       Opção: ");
 	scanf("%d", &opcao);
 	limparBuffer();
 	switch(opcao)
 	{
-		case 1: exibirPorCategoria();
+		case 1: exibirAleatoriamente();
 			break;
-		case 2: exibirValidade();
+		case 2: exibirPorCategoria();
 			break;
 		case 3: exibirPorFornecedor();
 			break;
@@ -60,6 +59,30 @@ void menuExibir()
 			pause();
 			return;
 	}
+}
+
+void exibirAleatoriamente()
+{
+	Produto produto;
+	FILE *file_estoque = fopen("../DB/estoque.bin","ab+");
+	
+	limparTela();
+	printf("                                        %s",now());
+	marca();
+	while(fread(&produto,sizeof(Produto),1,file_estoque) == 1)
+	{
+		printf(" Nome: %s\n", produto.nome);
+		printf(" Nome do Fornecedor: %s\n", produto.nomeFornecedor);
+		printf(" Nome da Categoria: %s\n", produto.nomeCategoria);
+		printf(" Quantidade: %d\n", produto.quantidade);
+		printf(" Vencimento: %d/%d/%d\n", produto.dia, produto.mes, produto.ano);
+		printf(" Preco: %.2f\n\n", produto.preco);
+		printf(" __________________________\n\n");
+	}
+	
+	fclose(file_estoque);
+	pause();
+	menuEstoque();			
 }
 
 void exibirPorCategoria()
@@ -98,30 +121,6 @@ void exibirPorCategoria()
 	}while(opcao != 'n');
 	pause();
 	menuEstoque();
-}
-
-void exibirValidade()
-{
-	Produto produto;
-	FILE *file_estoque = fopen("../DB/estoque.bin","ab+");
-	
-	limparTela();
-	printf("                                        %s",now());
-	marca();
-	while(fread(&produto,sizeof(Produto),1,file_estoque) == 1)
-	{
-		printf(" Nome: %s\n", produto.nome);
-		printf(" Nome do Fornecedor: %s\n", produto.nomeFornecedor);
-		printf(" Nome da Categoria: %s\n", produto.nomeCategoria);
-		printf(" Quantidade: %d\n", produto.quantidade);
-		printf(" Vencimento: %d/%d/%d\n", produto.dia, produto.mes, produto.ano);
-		printf(" Preco: %.2f\n\n", produto.preco);
-		printf(" __________________________\n\n");
-	}
-	
-	fclose(file_estoque);
-	pause();
-	menuEstoque();			
 }
 
 void exibirPorFornecedor()
@@ -328,6 +327,7 @@ int inserirProduto()
 					produto.quantidade += estoque.quantidade;
 					if(fwrite(&produto, sizeof(Produto), 1, file_deleta) != 0)
 					{
+						limparBuffer();
 						printf("\n Cadastrado com sucesso!\n\n");
 					}else{
 						printf("\n Cadastro não realizado!\n\n");
@@ -355,6 +355,7 @@ int inserirProduto()
 				fclose(file_produto);
 			}
 	   }else if (!achouFornecedor){
+		    limparBuffer();
 			printf(" Fornecedor não encontrado!\n");
 			printf(" Deseja inserir um novofornecedor?  (S/N) ");
 			scanf(" %c", &opcao);	
@@ -366,6 +367,7 @@ int inserirProduto()
 				return 0;
 			}
 	   }else if (!achouProdutoFornecedor){
+		    limparBuffer();
 		    printf(" Produto nao encontrado no fornecedor!\n");
 			printf(" Deseja inserir um novo produto no fornecedor? (S/N) ");
 			scanf(" %c", &opcao);	
@@ -377,6 +379,7 @@ int inserirProduto()
 				return 0;
 			}
 	   }else if (!achouCategoria){
+		    limparBuffer();
 		    printf(" Categoria nao encontrada!\n");
 			printf(" Deseja inserir uma nova Categoria? (S/N) ");
 			scanf(" %c", &opcao);	
@@ -525,26 +528,6 @@ int deletarProdutosZerados()
 	return 1;
 }
 
-int organizarEstoque()
-{
-	int count = 0, i = 5;
-	FILE *file_produto = fopen("../DB/estoque.bin","ab+");
-	Produto *produto, estoque;
-	
-	produto = (Produto *) malloc (sizeof(Produto) * i);
-	while(fread(&estoque,sizeof(Produto),1,file_produto) == 1)
-	{
-		if (count == i)
-			produto = (Produto *) realloc(produto, sizeof(Produto) * i + 5);
-		produto[count] = estoque;
-		count++;
-	}
-	fclose(file_produto);
-	
-	organizarPorData(produto, count);
-	return 1;
-}
-
 int checarQuantidade()
 {
 	int achouProduto = 0;
@@ -597,41 +580,3 @@ int checarValidade()
 	return 1;
 }
 
-void organizarPorData(Produto produto[], int n)
-{
-	int i, j;
-	Produto aux;
-	
-	for(i = 1; i < n; i++)
-	{
-		aux = produto[i];
-		for(j=i; (j>0) && (aux.ano < produto[j-1].ano); j--)
-			produto[j] = produto[j-1];
-		produto[j] = aux;
-	}
-	
-	for(i = 1; i < n; i++)
-	{
-		aux = produto[i];
-		for(j=i; (j>0) && (aux.mes < produto[j-1].mes); j--)
-			produto[j] = produto[j-1];
-		produto[j] = aux;
-	}
-	
-	for(i = 1; i < n; i++)
-	{
-		aux = produto[i];
-		for(j=i; (j>0) && (aux.dia < produto[j-1].dia); j--)
-			produto[j] = produto[j-1];
-		produto[j] = aux;
-	}
-	
-	FILE *file_produto = fopen("../DB/estoque.bin","ab+");
-	FILE *auxiliar = fopen("../DB/auxiliar.bin","ab+");
-	for(i=0;i<n;i++) fwrite(&produto[i],sizeof(Produto),1,auxiliar);
-	fclose(file_produto);
-	fclose(auxiliar);
-	
-	remove("../DB/estoque.bin");
-	rename("../DB/auxiliar.bin", "../DB/estoque.bin");
-}
