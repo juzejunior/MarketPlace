@@ -1,58 +1,70 @@
 #include "../include/config.h"
 
-void menuEstoque()
+void inicializarEstoque(Produto **produto)
 {
-	int opcao;		
-	limparTela();
-	deletarProdutosZerados();
-	printf("                                        %s",now());
-	marca();	
-	printf("\t\t\t      Estoque\n\n");
-	printf("\t      1-Fazer Novo Pedido    4-Excluir Produtos\n\t      2-Listar Produtos      0-Voltar\n\t      3-Colocar para Venda");
-	checarQuantidade();
-	checarValidade();
-	printf("\n\n\t      Opção: ");
-	scanf("%d", &opcao);
-	switch(opcao)
-	{
-		case 1: inserirProduto();
-			break;
-		case 2: menuExibir();
-			break;
-		case 3: retirarDoEstoque();
-			break;
-		case 4: deletarProduto();
-			break;
-		case 0: return;
-		default: printf(" Opcao Invalida, voltando ao menu principal! \n");
-			pause();
-			break;
-	}
+	*produto = NULL;
 }
 
-void menuExibir()
+int carregaEstoque(Produto **p)
+{
+	FILE *file_estoque = fopen("../DB/estoque.bin","rb");
+	Produto aux, *estoque, *novo, *anterior;
+	*p = NULL;
+	/*se o arquivo existir*/
+	if(file_estoque != NULL)
+	{
+		while(fread(&aux, sizeof(Produto),1,file_estoque) == 1)//lendo as structs no arquivo
+		{
+			estoque = *p;//taking the node root
+			anterior = estoque;//iniciando o anterior
+			
+			 novo = (Produto*) malloc(sizeof(Produto));//alocando novo espaço
+			*novo = aux; //atribuindo os valores
+			novo->prox = NULL;
+			if(estoque == NULL)//caso nao exista fornecedores carregados ainda
+			{
+				*p = novo;//atribui ao nó root
+			}
+			else
+			{
+				while(estoque != NULL)//percorre toda a lista de fornecedores
+				{
+					anterior = estoque;//guardando o ultimo elemento
+					estoque = estoque->prox;//andando pela lista
+				}
+				anterior->prox = novo;//atribui o novo elemento
+			}
+		}
+		fclose(file_estoque);//encerrando o arquivo
+	}else{
+		inicializarEstoque(p);
+	}
+	return 0;
+}
+
+void menuExibir(Produto **produto, Categoria **categoria, Fornecedor **fornecedor)
 {
 	int opcao;		
 	limparTela();
 	printf("                                        %s",now());
 	marca();
-	printf("\n       1-Listar por Aleatoriamente          4-Listar por Quantidade");
-	printf("\n       2-Listar por Categorias     5-Listar por Busca");
+	printf("\n       1-Listar Aleatoriamente           4-Listar por Quantidade");
+	printf("\n       2-Listar por Categorias           5-Listar por Busca");
 	printf("\n       3-Listar por Fornecedor           0-Voltar");
 	printf("\n\n       Opção: ");
 	scanf("%d", &opcao);
 	limparBuffer();
 	switch(opcao)
 	{
-		case 1: exibirAleatoriamente();
+		case 1: exibirAleatoriamente(produto);
 			break;
-		case 2: exibirPorCategoria();
+		case 2: exibirPorCategoria(produto, categoria);
 			break;
-		case 3: exibirPorFornecedor();
+		case 3: exibirPorFornecedor(produto, fornecedor);
 			break;
-		case 4: exibirPorQuantidade();
+		case 4: exibirPorQuantidade(produto);
 			break;	
-		case 5: exibirPorBusca();
+		case 5: exibirPorBusca(produto);
 			break;
 		case 0: return;
 		default: printf(" Opcao Invalida, voltando ao menu de estoque! \n");
@@ -61,307 +73,224 @@ void menuExibir()
 	}
 }
 
-void exibirAleatoriamente()
+int exibirAleatoriamente(Produto **produto)
 {
-	Produto produto;
-	FILE *file_estoque = fopen("../DB/estoque.bin","ab+");
-	
 	limparTela();
-	printf("                                        %s",now());
-	marca();
-	while(fread(&produto,sizeof(Produto),1,file_estoque) == 1)
+	printf("                                     %s", now());
+	marca();	
+	printf("       		      Listar o Estoque\n\n");
+	Produto *p = *produto;
+	if(p == NULL)
 	{
-		printf(" Nome: %s\n", produto.nome);
-		printf(" Nome do Fornecedor: %s\n", produto.nomeFornecedor);
-		printf(" Nome da Categoria: %s\n", produto.nomeCategoria);
-		printf(" Quantidade: %d\n", produto.quantidade);
-		printf(" Vencimento: %d/%d/%d\n", produto.dia, produto.mes, produto.ano);
-		printf(" Preco: %.2f\n\n", produto.preco);
-		printf(" __________________________\n\n");
-	}
-	
-	fclose(file_estoque);
-	pause();
-	menuEstoque();			
-}
-
-void exibirPorCategoria()
-{
-	int encontrou;
-	char opcao;
-	char nomeCategoria[30];
-	Produto produto;
-	FILE *file_estoque;
-	
-	do
-	{
-		limparTela();
-		printf("                                        %s",now());
-		marca();
-		encontrou = 0;
-		printf("\n Digite o nome da categoria: ");
-		scanf (" %[^\n]s", nomeCategoria);
-		stringMaiusculo(nomeCategoria);
-		limparBuffer();
-		printf("\n\n Categoria: %s\n", nomeCategoria);
-		file_estoque = fopen("../DB/estoque.bin", "ab+");
-		while(fread(&produto,sizeof(Produto),1,file_estoque) == 1)
-		{
-			if (strcmp(produto.nomeCategoria, nomeCategoria) == 0)
-			{
-				encontrou = 1;
-				printf("\tNome: %s\n", produto.nome);
-			}
-		}
-		fclose(file_estoque);
-		if (!encontrou) printf(" Produto nao encontrado!");
-		printf(" Nova pesquisa(s/n): ");
-		scanf(" %c", &opcao);
-		limparBuffer();	
-	}while(opcao != 'n');
-	pause();
-	menuEstoque();
-}
-
-void exibirPorFornecedor()
-{
-	int opcao;
-	char nomeFornecedor[30];
-	Fornecedor fornecedor;
-	FILE *file_fornecedor = fopen("../DB/fornecedores.bin","ab+");
-	Produto produto;
-	FILE *file_estoque;
-	limparTela();
-	printf("                                        %s",now());
-	marca();
-	printf("\n 1-Exibir Todos os Produtos\n");
-	printf(" 2-Exibir de um Fornecedor Especifico\n");
-	printf(" Opcao: ");
-	scanf ("%d", &opcao);
-	limparBuffer();	
-	if (opcao == 1){
-		while(fread(&fornecedor,sizeof(Fornecedor),1,file_fornecedor) == 1)
-		{
-			printf(" Nome do Fornecedor: %s\n", fornecedor.nome);
-			file_estoque = fopen("../DB/estoque.bin","rb"); 
-			while(fread(&produto,sizeof(Produto),1,file_estoque) == 1)
-			{
-				if(strcmp(fornecedor.nome, produto.nomeFornecedor) == 0){
-					printf("\tNome do Produto: %s\n", produto.nome);
-				}
-			}
-			fclose(file_estoque);
-			printf(" __________________________\n\n");
-		}
+		return 0;
 	}else{
-		printf(" Digite o nome do Fornecedor: ");
-		scanf (" %[^\n]s", nomeFornecedor);
-		stringMaiusculo(nomeFornecedor);
-		limparBuffer();
-		while(fread(&fornecedor,sizeof(Fornecedor),1,file_fornecedor) == 1)
+		while(p != NULL)
 		{
-			if(strcmp(fornecedor.nome, nomeFornecedor) == 0){
-				printf(" Nome do Fornecedor: %s\n", fornecedor.nome);
-				file_estoque = fopen("../DB/estoque.bin","rb"); 
-				while(fread(&produto,sizeof(Produto),1,file_estoque) == 1)
-				{
-					if(strcmp(fornecedor.nome, produto.nomeFornecedor) == 0){
-						printf("\tNome do Produto: %s\n", produto.nome);
-					}
-				}
-				fclose(file_estoque);
+			printf(" Nome: %s\n", p->nome);
+			printf(" Nome do Fornecedor: %s\n", p->nomeFornecedor);
+			printf(" Nome da Categoria: %s\n", p->nomeCategoria);
+			printf(" Quantidade: %d\n", p->quantidade);
+			printf(" Data de Entrada: %d/%d/%d\n", p->eDia, p->eMes, p->eAno);
+			printf(" Vencimento: %d/%d/%d\n", p->dia, p->mes, p->ano);
+			printf(" Preco: %.2f\n\n", p->preco);
+			printf(" __________________________\n\n");
+			p = p->prox;
+		}
+	}
+		
+	pause();	
+	return 1;
+}
+
+int exibirPorCategoria(Produto **produto, Categoria **categoria)
+{
+	char nomeCategoria[30];
+	limparTela();
+	printf("                                     %s", now());
+	marca();	
+	printf("       	  Listar Produtos por Categoria\n\n");
+	Produto *p = *produto;
+	Categoria *c = *categoria;
+	if(p == NULL || c == NULL)
+	{
+		return 0;
+	}else{
+		while(c != NULL)
+		{
+			printf(" %s: \n", c->nomeCategoria);
+			strcpy(nomeCategoria, c->nomeCategoria);
+			while(p != NULL && strcmp (nomeCategoria, p->nomeCategoria) == 0)
+			{
+				printf("     Nome: %s\n", p->nome);
+				p = p->prox;
+			}
+			c = c->prox;
+			p = *produto;
+		}
+	}
+		
+	pause();	
+	return 1;
+}
+
+int exibirPorFornecedor(Produto **produto, Fornecedor **fornecedor)
+{
+	limparTela();
+	printf("                                     %s", now());
+	marca();	
+	printf("       	  Listar Produtos por Fornecedor\n\n");
+	Produto *p = *produto;
+	Fornecedor *f = *fornecedor;
+	if(p == NULL || f == NULL)
+	{
+		return 0;
+	}else{
+		while(f != NULL)
+		{
+			printf(" %s: \n", f->nome);
+			while(p != NULL)
+			{
+				printf("     Nome: %s\n\n", p->nome);
+				p = p->prox;
+			}
+			f = f->prox;
+			p = *produto;
+		}
+	}
+		
+	pause();	
+	return 1;
+}
+
+int exibirPorQuantidade(Produto **produto)
+{
+	limparTela();
+	printf("                                     %s", now());
+	marca();	
+	printf("       		      Listar Quantidades\n\n");
+	Produto *p = *produto;
+	if(p == NULL)
+	{
+		return 0;
+	}else{
+		while(p != NULL)
+		{
+			printf(" Nome: %s\n", p->nome);
+			printf(" Quantidade: %d\n\n", p->quantidade);
+			p = p->prox;
+		}
+	}
+		
+	pause();	
+	return 1;
+}
+
+int exibirPorBusca(Produto **produto)
+{
+	char nomeProduto[30];
+	char nomeFornecedor[30];
+	limparTela();
+	printf("                                     %s", now());
+	marca();	
+	printf("       		      Listar por Busca\n\n");
+	printf(" Nome do Produto: ");
+	scanf(" %[^\n]s", nomeProduto);
+	stringMaiusculo(nomeProduto);
+	printf(" Nome do Fornecedor: ");
+	scanf(" %[^\n]s", nomeFornecedor);
+	stringMaiusculo(nomeFornecedor);
+	Produto *p = *produto;
+	if(p == NULL)
+	{
+		return 0;
+	}else{
+		while(p != NULL)
+		{
+			if ((strcmp(nomeProduto, p->nome) == 0) && (strcmp(nomeFornecedor, p->nomeFornecedor) == 0))
+			{
+				printf(" Nome: %s\n", p->nome);
+				printf(" Quantidade: %d\n", p->quantidade);
+				printf(" Vencimento: %d/%d/%d\n", p->dia, p->mes, p->ano);
+				printf(" Preco: %.2f\n\n", p->preco);
+				p = p->prox;
 			}
 		}
 	}
-	fclose(file_fornecedor);
-	pause();
-	menuEstoque();
+		
+	pause();	
+	return 1;
 }
 
-void exibirPorQuantidade()
+int inserirProduto(Produto **produto, Categoria **categoria, Fornecedor **fornecedor, Produto **p_fornecedor)
 {
-	int encontrou;
-	Produto produto;
+	int achouCategoria = 0;
+	int achouFornecedor = 0;
+	int achouProdutoFornecedor = 0;
+	time_t t = time(NULL);
+	struct tm tm;
+	tm = *localtime(&t);
 	FILE *file_estoque;
-	limparTela();
-	printf("                                        %s",now());
-	marca();
-	encontrou = 0;
-	file_estoque = fopen("../DB/estoque.bin", "ab+");
-	while(fread(&produto,sizeof(Produto),1,file_estoque) == 1)
-	{
-		encontrou = 1;
-		printf("\tNome: %s\n", produto.nome);
-		printf("\tQuantidade: %d\n\n", produto.quantidade);
-		printf(" ____________________________\n\n");
-	}
-	fclose(file_estoque);
-	if (!encontrou) printf(" Produto nao encontrado!");
-	pause();
-	menuEstoque();
-}
-
-void exibirPorBusca()
-{
-	int achouProduto = 0;
-	char nomeProduto[30];
+	Produto *p, *anterior, *novo;
+	char opcao, opcao2;
 	
-	Produto produto;
-	FILE *file_estoque = fopen("../DB/estoque.bin", "ab+");
-	
-	limparTela();
-	printf("                                        %s",now());
-	marca();
-	printf("\n Digite o produto que deseja saber mais informacoes: ");
-	scanf (" %[^\n]s", nomeProduto);
-	stringMaiusculo(nomeProduto);
-	limparBuffer();	
-	
-	while(fread(&produto,sizeof(Produto),1,file_estoque) == 1)
-	{
-		if (strcmp(nomeProduto, produto.nome) == 0)
+	do{
+		p = *produto;//taking the node root
+		anterior = p;//iniciando o anterior
+		novo = (Produto*) malloc(sizeof(Produto));//alocando
+		file_estoque = fopen("../DB/estoque.bin","ab");
+		limparTela();
+		printf("                                     %s", now());
+	    marca();	
+	    printf("       		      Cadastro de Produtos\n\n");
+	    printf(" 		Nome do Produto: ");
+	    scanf(" %[^\n]s", novo->nome);	
+	    stringMaiusculo(novo->nome);
+	    printf(" 		Nome do Fornecedor: ");
+	    scanf(" %[^\n]s", novo->nomeFornecedor);	
+	    stringMaiusculo(novo->nomeFornecedor);
+	    printf(" 		Nome da Categoria: ");
+	    scanf(" %[^\n]s", novo->nomeCategoria);	
+	    stringMaiusculo(novo->nomeCategoria);
+	    achouFornecedor = existeFornecedor(*fornecedor, novo->nomeFornecedor);
+		achouProdutoFornecedor = existeProdutoFornecedor(novo->nomeFornecedor, novo->nome, *p_fornecedor);
+		achouCategoria = existeCategoria(*categoria, novo->nomeCategoria);
+	    
+	    if (achouFornecedor != 0 && achouProdutoFornecedor == 1 && achouCategoria == 1)
 		{
-			printf(" Nome: %s\n", produto.nome);
-			printf(" Nome do Fornecedor: %s\n", produto.nomeFornecedor);
-			printf(" Nome da Categoria: %s\n", produto.nomeCategoria);
-			printf(" Quantidade: %d\n", produto.quantidade);
-			printf(" Vencimento: %d/%d/%d\n", produto.dia, produto.mes, produto.ano);
-			printf(" Preco: %.2f\n\n", produto.preco);
-			achouProduto = 1;
-		}
-	}
-	
-	if(achouProduto == 0) printf(" Produto nao encontrado\n");
-	
-	fclose(file_estoque);
-	pause();
-	menuEstoque();
-}
-
-int inserirProduto()
-{
-	char opcao;
-	char opcao2;
-	int achouProduto;
-	int achouCategoria;
-	int achouFornecedor;
-	int achouProdutoFornecedor;
-	
-	FILE *file_produto;
-	Produto produto;
-	FILE *file_estoque;
-	Produto estoque;
-	FILE *file_deleta;
-	do
-	{
-	   achouProduto = 0;
-	   achouFornecedor = 0;
-	   achouProdutoFornecedor = 0;
-	   limparTela();	
-	   printf("                                        %s",now());
-	   marca();
-	   printf("\n\t\t\t Pedido de Produtos\n\n");
-	   printf(" Nome: ");
-	   scanf(" %[^\n]s", produto.nome);
-	   printf(" Nome do Fornecedor: ");
-	   scanf(" %[^\n]s", produto.nomeFornecedor);
-	   printf(" Nome da Categoria: ");
-	   scanf(" %[^\n]s", produto.nomeCategoria);
-	   stringMaiusculo(produto.nome);
-	   stringMaiusculo(produto.nomeCategoria);
-	   stringMaiusculo(produto.nomeFornecedor);
-	   achouFornecedor = existeFornecedor(produto.nomeFornecedor);
-	   achouProdutoFornecedor = existeProdutoFornecedor(produto.nomeFornecedor, produto.nome);
-	   achouCategoria = existeNomeCategoria(produto.nomeCategoria);
-	   if (achouFornecedor != 0 && achouProdutoFornecedor == 1 && achouCategoria == 1)
-	   {
-			printf(" Quantidade: ");
-			scanf(" %d", &produto.quantidade);
-			printf(" Preço: ");
-			scanf(" %f", &produto.preco);
-			printf("\n Deseja adicionar validade(s/n)\n");
-			printf(" Opcao: ");
+			printf(" 		Quantidade: ");
+			scanf(" %d", &novo->quantidade);
+			printf(" 		Preço: ");
+			scanf(" %f", &novo->preco);
+			novo->prox = NULL;
+			novo->eDia = tm.tm_mday;
+			novo->eMes = (tm.tm_mon + 1);
+			novo->eAno = (tm.tm_year + 1900);
+			printf("\n 		Deseja adicionar validade(s/n)\n");
+			printf(" 		Opcao: ");
 			scanf(" %c", &opcao2);
 			if(opcao2 == 's')
 			{
-				printf(" Validade: ");
-				scanf("  %d/%d/%d", &produto.dia, &produto.mes, &produto.ano);
-				while (valida_data(produto.dia, produto.mes, produto.ano)!=1)
+				printf(" 		Validade: ");
+				scanf("  %d/%d/%d", &novo->dia, &novo->mes, &novo->ano);
+				while (valida_data(novo->dia, novo->mes, novo->ano)!=1)
 				{
-					printf(" Data Inválida!\n ");
-					printf(" Validade: ");
-					scanf(" %d/%d/%d", &produto.dia, &produto.mes, &produto.ano);
+					printf(" 		Data Inválida!\n ");
+					printf(" 		Validade: ");
+					scanf(" %d/%d/%d", &novo->dia, &novo->mes, &novo->ano);
 				}
 			}else{
-				produto.dia = NODATA;
-				produto.mes = NODATA;
-				produto.ano = NODATA;
+				novo->dia = NODATA;
+				novo->mes = NODATA;
+				novo->ano = NODATA;
 			}
-			file_produto = fopen("../DB/estoque.bin","ab");
-			fclose(file_produto);
-	   
-			file_estoque = fopen("../DB/estoque.bin","rb");
-			file_deleta = fopen("../DB/aux.bin","wb"); 
-	   
-			while(fread(&estoque,sizeof(Produto),1,file_estoque) == 1 && achouProduto == 0)
-			{
-				if (strcmp(estoque.nome, produto.nome) == 0 &&
-					strcmp(estoque.nomeFornecedor, produto.nomeFornecedor) == 0 &&
-					estoque.dia == produto.dia &&
-					estoque.mes == produto.mes &&
-					estoque.ano == produto.ano)
-				{
-					if (strcmp(estoque.nomeCategoria, produto.nomeCategoria) != 0)
-					{
-						printf("\n Produto com categoria diferente do estoque! \n");
-						printf(" Digite o nome definitivo da categoria: ");
-						scanf(" %[^\n]s", produto.nomeCategoria);
-						stringMaiusculo(produto.nomeCategoria);
-					}
-					if (estoque.preco != produto.preco)
-					{
-						printf("\n Produto com preco diferente! \n");
-						printf(" Digite o valor para o produto: ");
-						scanf(" %f", &produto.preco);
-					}
-					produto.quantidade += estoque.quantidade;
-					if(fwrite(&produto, sizeof(Produto), 1, file_deleta) != 0)
-					{
-						limparBuffer();
-						printf("\n Cadastrado com sucesso!\n\n");
-					}else{
-						printf("\n Cadastro não realizado!\n\n");
-					}
-					achouProduto = 1;
-				}else{
-					fwrite(&estoque, sizeof(Produto), 1, file_deleta);
-				}   
-			}
-			fclose(file_estoque);
-			fclose(file_deleta);
-	   
-			remove("../DB/estoque.bin");
-			rename("../DB/aux.bin", "../DB/estoque.bin");
-	   
-			if(!achouProduto)
-			{
-				file_produto = fopen("../DB/estoque.bin","ab");
-				if(fwrite(&produto,sizeof(Produto),1,file_produto) != 0)
-				{
-					printf("\n Cadastrado com sucesso!\n\n");
-				}else{
-					printf("\n Cadastro não realizado!\n\n");
-				}
-				fclose(file_produto);
-			}
-	   }else if (!achouFornecedor){
+		}else if (!achouFornecedor){
 		    limparBuffer();
 			printf(" Fornecedor não encontrado!\n");
 			printf(" Deseja inserir um novofornecedor?  (S/N) ");
 			scanf(" %c", &opcao);	
 			opcao = toupper(opcao);
 			if (opcao == 'S'){
-				inserirFornecedor();
+				cadastrarFornecedor(fornecedor, p_fornecedor);
 				return 0;
 			}else{
 				return 0;
@@ -373,7 +302,7 @@ int inserirProduto()
 			scanf(" %c", &opcao);	
 			opcao = toupper(opcao);
 			if (opcao == 'S'){
-				adicionarProdutosFornecedor();
+				adicionarProdutosFornecedor(fornecedor, p_fornecedor);
 				return 0;
 			}else{
 				return 0;
@@ -385,21 +314,35 @@ int inserirProduto()
 			scanf(" %c", &opcao);	
 			opcao = toupper(opcao);
 			if (opcao == 'S'){
-				inserirCategoria();
+				cadastrarCategoria(categoria);
 				return 0;
 			}else{
 				return 0;
 			}
 	   }
-		printf(" Novo cadastro(s/n): ");
-		scanf(" %c", &opcao);	
+		//se nao houver fornecedores cadastrados
+		if(p == NULL)
+		{
+			*produto = novo;
+		}else{
+			while(p != NULL)//percorre toda a lista de fornecedores
+			{
+				anterior = p;//guardando o ultimo elemento
+				p = p->prox;//andando pela lista
+			}
+			anterior->prox = novo;//atribui o novo elemento
+		}
+		if(fwrite(novo,sizeof(Produto),1,file_estoque) != 0) printf(" 		Cadastrado com sucesso :)\n\n");
+		else printf(" 		Problema ao cadastrar produto :(\n\n");
+	    fclose(file_estoque);
+	    printf(" 		Novo cadastro(s/n): ");
+	    scanf(" %c", &opcao);
 	}while(opcao != 'n');
-	limparTela();
-	menuEstoque();
-	return 1;
+	pause();
+	return 1;	
 }
 
-int retirarDoEstoque()
+int retirarDoEstoque(Produto **produtos)
 {
 	char opcao;
 	char nomeProduto[30];
@@ -449,62 +392,81 @@ int retirarDoEstoque()
 		printf(" Deseja adicionar mais algum pedigo a venda(s/n): ");
 	    scanf(" %c", &opcao);	
 	}while(opcao!='n');
-	menuEstoque();
+	carregaEstoque(produtos);
 	return 1;
 }
 
-int deletarProduto()
+int deletarEstoque(Produto **produto)
 {
-	char opcao;
-	char nomeProduto[30];
-	char nomeFornecedor[30];
-	int encontrou;
-	
-	FILE *file_produto;
-	Produto produto;
-	FILE *aux;
-	
+	char opcao, nomeProduto[30], nomeFornecedor[30];
+	Produto p;
+	FILE *file_estoque;
+	FILE *file_aux;
 	do{
-		encontrou = 0;
+		file_estoque = fopen("../DB/estoque.bin","rb");
+		file_aux = fopen("../DB/aux.bin","wb");
 		limparTela();
-		printf("                                        %s",now());
-		marca();
-		printf (" Produto que você deseja retirar do estoque: ");
-		scanf (" %[^\n]s", nomeProduto);
-		stringMaiusculo(nomeProduto);
-		printf (" Fornecedor deste produto: ");
-		scanf (" %[^\n]s", nomeFornecedor);
-		stringMaiusculo(nomeFornecedor);
-		file_produto = fopen("../DB/estoque.bin","rb");
-		aux = fopen("../DB/aux.bin","wb");
-		while(fread(&produto,sizeof(Produto),1,file_produto) == 1)
+		printf("                                     %s", now());
+		marca();	
+		printf("       		      Deletar Estoque\n\n");
+		printf(" 		Produto: ");
+		scanf(" %[^\n]s", nomeProduto);	
+		printf(" 		Fornecedor do Produto: ");
+		scanf(" %[^\n]s", nomeFornecedor);	
+	    stringMaiusculo(nomeProduto);
+	    *produto = NULL;
+	    while(fread(&p, sizeof(Produto),1,file_estoque) == 1)//lendo as structs no arquivo
 		{
-			if(strcmp(produto.nome, nomeProduto) == 0 &&
-			   strcmp(produto.nomeFornecedor, nomeFornecedor) == 0)
+			if(strcmp(nomeProduto, p.nome) != 0 && strcmp(nomeFornecedor, p.nomeFornecedor) != 0)
 			{
-				encontrou = 1;
-			}else{
-				fwrite(&produto, sizeof(Produto), 1, aux);
+				fwrite(&p,sizeof(Produto),1,file_aux);
 			}
 		}
-	
-		fclose(file_produto);
-		fclose(aux);
-	
+		fclose(file_estoque);
+		fclose(file_aux);
 		remove("../DB/estoque.bin");
 		rename("../DB/aux.bin", "../DB/estoque.bin");
-		
-		if(!encontrou) printf(" Produto nao encontrado!\n");
-		else printf(" Excluido com sucesso\n");
-		
-		printf(" Deseja excluir algum produto(s/n): ");
-	    scanf(" %c", &opcao);	
+		printf(" 		Deletar mais um produto(s/n): ");
+	    scanf(" %c", &opcao);
 	}while(opcao!='n');
-	menuEstoque();
+	carregaEstoque(produto);
+	//menuCategoria(categoria);
 	return 1;
 }
 
-int deletarProdutosZerados()
+void menuEstoque(Produto **produto, Categoria **categoria, Fornecedor **fornecedor, Produto **p_fornecedor)
+{
+	int opcao;		
+	limparTela();
+	carregaEstoque(produto);
+	deletarProdutosZerados(produto);
+	printf("                                        %s",now());
+	marca();	
+	printf("\t\t\t      Estoque\n\n");
+	printf("\t      1-Fazer Novo Pedido    4-Excluir Produtos\n\t      2-Listar Produtos      0-Voltar\n\t      3-Colocar para Venda");
+	checarQuantidade(produto);
+	checarValidade(produto);
+	printf("\n\n\t      Opção: ");
+	scanf("%d", &opcao);
+	switch(opcao)
+	{
+		case 1: inserirProduto(produto, categoria, fornecedor, p_fornecedor);
+			break;
+		case 2: menuExibir(produto, categoria, fornecedor);
+			break;
+		case 3: retirarDoEstoque(produto);
+			break;
+		case 4: deletarEstoque(produto);
+			break;
+		case 0: return;
+		default: printf(" Opcao Invalida, voltando ao menu principal! \n");
+			pause();
+			break;
+	}
+	menuEstoque(produto, categoria, fornecedor, p_fornecedor);
+}
+
+int deletarProdutosZerados(Produto **produtos)
 {
 	Produto produto;
 	FILE *file_estoque = fopen("../DB/estoque.bin","ab");
@@ -525,58 +487,49 @@ int deletarProdutosZerados()
 	fclose(aux);
 	remove("../DB/estoque.bin");
 	rename("../DB/aux.bin", "../DB/estoque.bin");
+	carregaEstoque(produtos);
 	return 1;
 }
 
-int checarQuantidade()
+int checarQuantidade(Produto **produto)
 {
 	int achouProduto = 0;
-	Produto produto;
-	FILE *file_estoque = fopen("../DB/estoque.bin", "rb+");
-	while(fread(&produto,sizeof(Produto),1,file_estoque) == 1)
+	Produto *p = *produto;
+	while(p!=NULL)
 	{
-		if (produto.quantidade < 5)
+		if (p->quantidade < 5)
 		{
 			if(achouProduto == 0) printf("\n\tExistem produtos com menos de 5 unidades: ");
-			printf("\n\t   Nome: %s", produto.nome);
-			printf("\n\t   Quantidade: %d\n", produto.quantidade);
+			printf("\n\t   Nome: %s", p->nome);
+			printf("\n\t   Quantidade: %d\n", p->quantidade);
 			achouProduto = 1;
 		}
+		p = p->prox;
 	}
 	
 	if(achouProduto == 0) return 0;
-	fclose(file_estoque);
 	return 1;
 }
 
-int checarValidade()
+int checarValidade(Produto **produto)
 {
 	int achouProduto = 0;
 	time_t t = time(NULL);
 	struct tm tm;
 	tm = *localtime(&t);
-	Produto produto;
-	FILE *file_estoque = fopen("../DB/estoque.bin","ab+");
-	FILE *auxiliar = fopen("../DB/auxiliar.bin","ab+");
-	while(fread(&produto,sizeof(Produto),1,file_estoque) == 1)
+	Produto *p = *produto;
+	
+	while(p!=NULL)
 	{
-		if(produto.dia == tm.tm_mday &&
-		   produto.mes == (tm.tm_mon + 1) &&
-		   produto.ano == (tm.tm_year + 1900))
+		if(p->dia == tm.tm_mday &&
+		   p->mes == (tm.tm_mon + 1) &&
+		   p->ano == (tm.tm_year + 1900))
 		{
-			if(achouProduto == 0) printf("\n\n    Os seguintes produtos foram retirados do estoque pois estão vencidos: ");
-			printf("\n\tNome: %s", produto.nome);
+			if(achouProduto == 0) printf("\n\n    Os seguintes produtos devem ser retirados do estoque pois estão vencidos: ");
+			printf("\n\tNome: %s", p->nome);
 			achouProduto = 1;
-		}else{
-			fwrite(&produto, sizeof(Produto), 1, auxiliar);
 		}
+		p = p->prox;
 	}
-	
-	fclose(file_estoque);
-	fclose(auxiliar);
-	
-	remove("../DB/estoque.bin");
-	rename("../DB/auxiliar.bin", "../DB/estoque.bin");
 	return 1;
 }
-

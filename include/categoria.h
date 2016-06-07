@@ -4,12 +4,15 @@
 
 typedef struct Categoria{
 	char nomeCategoria[50];
+	struct Categoria *prox;
 }Categoria;
 
-int existeNomeCategoria(char nomeCategoria[]);
-int inserirCategoria();
-int deletarCategoria();
-void exibirCategoria();
-void menuCategoria();
-
+void inicializarCategoria(Categoria **categoria);
+int carregaCategoria(Categoria **c);
+void cadastrarCategoria(Categoria **categoria);
+int exibirCategoria(Categoria **categoria);
+int deletarCategoria(Categoria **categoria);
+void atualizarArquivoCategoria(Categoria **categoria);
+void menuCategoria(Categoria **categoria);
+int existeCategoria(Categoria *categoria, char nomeCategoria[]);
 #endif
